@@ -20,17 +20,56 @@
  **/
 
 #include <glib.h>
+#include <glib/gprintf.h>
+#include <stdarg.h>
 
 #include "error.h"
 
 static gchar *_lastErrorMessage = NULL;
+static gint _lastErrorCode = 0;
 
-void
-setLastError (gint code, const gchar * message, ...)
+gboolean
+error_init ()
+{
+	return TRUE;
+}
+
+gboolean
+error_cleanup ()
 {
 	if (_lastErrorMessage != NULL)
+	{
 		g_free (_lastErrorMessage);
-	_lastErrorMessage = g_strdup (message);
+		_lastErrorMessage = NULL;
+	}
+	return TRUE;
+}
+
+void
+setError (gint code, const gchar * message, ...)
+{
+	/* copy code */
+	_lastErrorCode = code;
+	/* free last message */
+	if (_lastErrorMessage != NULL)
+	{
+		g_free (_lastErrorMessage);
+		_lastErrorMessage = NULL;
+	}
+	/* create message */
+	if (message != NULL)
+	{
+		va_list args;
+		va_start (args, message);
+		g_vasprintf (&_lastErrorMessage, message, args);
+		va_end (args);
+	}
+}
+
+gint
+til_lastErrorCode ()
+{
+	return _lastErrorCode;
 }
 
 const gchar *

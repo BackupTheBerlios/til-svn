@@ -38,8 +38,8 @@ typedef gint TIL_View;
 
 gboolean til_init ();
 gboolean til_cleanup ();
+gint til_lastErrorCode ();
 const gchar *til_lastErrorMessage (); //TODO: i18n
-gint til_lastError (); //TODO
 
 #define til_createPluginInfo() g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free)
 #define til_destroyPluginInfo( pi ) if (pi != NULL) g_hash_table_destroy (pi); else

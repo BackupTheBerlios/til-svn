@@ -23,6 +23,8 @@
 #include <til.h>
 #include <glib.h>
 
+#include "error.h"
+
 int
 init_tests ()
 {
@@ -33,6 +35,33 @@ int
 cleanup_tests ()
 {
 	return til_cleanup ()? 0 : 1;
+}
+
+void
+set_error_test ()
+{
+	// check for correct return values at the beginning
+	CU_ASSERT_EQUAL (til_lastErrorCode (), 0);
+	CU_ASSERT_PTR_NULL (til_lastErrorMessage ());
+
+	// set errors and check if they are returned
+	setError (-1, "testerror %d", 1);
+	CU_ASSERT_EQUAL (til_lastErrorCode (), -1);
+	const gchar *msg = til_lastErrorMessage ();
+	CU_ASSERT_PTR_NOT_NULL (msg);
+	if (msg != NULL)
+	{
+		CU_ASSERT_STRING_EQUAL (msg, "testerror 1");
+	}
+
+	setError (-2, "testerror %d", 2);
+	CU_ASSERT_EQUAL (til_lastErrorCode (), -2);
+	msg = til_lastErrorMessage ();
+	CU_ASSERT_PTR_NOT_NULL (msg);
+	if (msg != NULL)
+	{
+		CU_ASSERT_STRING_EQUAL (msg, "testerror 2");
+	}
 }
 
 void
@@ -199,6 +228,7 @@ register_view_test ()
 }
 
 static CU_TestInfo tests[] = {
+	{"error functions", set_error_test},
 	{"init and cleanup", base_test},
 	{"plugin info create/destroy", pluginInfo_test},
 	{"read plugin info", plugin_readInfo_test},

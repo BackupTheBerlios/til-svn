@@ -24,10 +24,12 @@
 #include <til.h>
 
 #include "plugin.h"
+#include "error.h"
 
 gboolean
 til_init ()
 {
+	error_init ();
 	plugin_init ();
 	return TRUE;
 }
@@ -36,5 +38,6 @@ gboolean
 til_cleanup ()
 {
 	plugin_cleanup ();
+	error_cleanup ();
 	return TRUE;
 }

@@ -6,8 +6,8 @@ AC_CONFIG_SRCDIR([til/appiface.c])
 # check for standard headers
 AC_CHECK_HEADERS
 
-# check for glib>=2.0 and set GLIB_CFLAGS, GLIB_LIBS properly
-AM_PATH_GLIB_2_0([],[],[AC_MSG_ERROR([GLIB >= 2.0 not found. Please install it.])], [gmodule gthread])
+# check for glib>=2.4 and set GLIB_CFLAGS, GLIB_LIBS properly
+AM_PATH_GLIB_2_0([2.4.0],[],[AC_MSG_ERROR([GLIB >= 2.4 not found. Please install it.])], [gmodule gthread])
 
 # check if the unit tests shall be enabled
 AC_ARG_ENABLE([unittests], [AS_HELP_STRING([--enable-unittests], [enable if unit tests shall be built (for developers)])])

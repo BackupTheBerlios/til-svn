@@ -26,7 +26,7 @@ To configure & build the TIL, you need the following programs/libraries:
 - a C compiler (we recommend GCC)
 - GNU Autoconf
 - Perforce Jam
-- GLIB >= 2.0, headers and libraries
+- GLIB >= 2.4, headers and libraries
 - CUnit >= 2.0 (for unit tests), headers and libraries
 - ncurses (recommended for unit tests), only the library
 

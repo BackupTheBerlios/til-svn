@@ -24,6 +24,8 @@
 
 #include <glib.h>
 
-void setLastError (gint code, const gchar * message, ...);
+gboolean error_init ();
+gboolean error_cleanup ();
+void setError (gint code, const gchar * message, ...);
 
 #endif

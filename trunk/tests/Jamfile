@@ -1,6 +1,7 @@
 SubDir TOP tests ;
 
 SubDirHdrs $(TILHDRS) ;
+SubDirHdrs $(TILINTHDRS) ;
 SubDirCcFlags $(GLIBCFLAGS) ;
 Main curses : curses.c til.c ;
 LinkLibraries curses : libtil ;
