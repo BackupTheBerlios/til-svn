@@ -72,6 +72,8 @@ $ tests/console
 
 to run the console version.
 
+Note: You have to run the tests from the top-level directory, otherwise they cannot find the plugins.
+
 
 4. Contributing code
 ====================
