@@ -1,0 +1,7 @@
+SubDir TOP plugins dummy ;
+
+SubDirHdrs $(TILHDRS) ;
+SubDirCcFlags $(GLIBCFLAGS) ;
+Plugin dummy : dummy.c ;
+Bulk plugins$(SLASH)dummy : dummy.tilplugin ;
+Depends plugins$(SLASH)dummy$(SLASH)dummy.tilplugin : dummy ;

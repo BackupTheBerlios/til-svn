@@ -1,0 +1,54 @@
+SUBDIRRULES += FixSubDirPath ;
+
+rule FixSubDirPath
+{
+    LOCATE_SOURCE = [ FDirName $(SUBDIR_TOKENS) ] ;
+    LOCATE_TARGET = [ FDirName $(SUBDIR_TOKENS) ] ;
+}
+
+Depends all : plugin ;
+NotFile plugin ;
+
+rule Plugin
+{
+	# Plugin <name> : <sources> ;
+
+	PluginFromObjects $(<) : $(>:S=$(SUFOBJ)) ;
+	Objects $(>) ;
+}
+
+rule PluginFromObjects
+{
+	local _s _t ;
+
+	# Add grist to file names
+	# Add suffix to plugin
+
+	_s = [ FGristFiles $(>) ] ;
+	_t = [ FAppendSuffix $(<) : $(SUFPLUGIN) ] ;
+	_t = $(PREFPLUGIN)$(_t) ;
+
+	# so 'jam foo' works when it's really foo.so
+
+	if $(_t) != $(<)
+	{
+		Depends $(<) : $(_t) ;
+		NotFile $(<) ;
+	}
+
+	# make compiled sources a dependency of target
+
+	Depends plugin : $(_t) ;
+	Depends $(_t) : $(_s) ;
+	MakeLocate $(_t) : $(LOCATE_TARGET) ;
+
+	Clean clean : $(_t) ;
+
+	LinkSharedLib $(_t) : $(_s) ;
+}
+
+rule LinkSharedLib
+{
+	Link $(<) : $(>) ;
+	if $(UNIX) { LINKFLAGS on $(<) = -shared ; }
+}

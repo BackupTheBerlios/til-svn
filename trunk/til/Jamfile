@@ -1,0 +1,6 @@
+SubDir TOP til ;
+
+SubDirHdrs $(TILHDRS) ;
+SubDirCcFlags $(GLIBCFLAGS) ;
+Library libtil : til.c plugin.c error.c appiface.c ;
+LINKLIBS on libtil$(SUFLIB) = $(GLIBLINKLIBS) ;

@@ -1,0 +1,10 @@
+id = til.dummy
+name = Dummy
+version = 0.1
+copyright = Pascal Maillard
+license = LGPL 2
+licenseurl = http://www.gnu.org
+author = Pascal Maillard
+url = http://til.berlios.de
+description = A dummy plugin that does nothing.
+description[de] = Ein sinnloses Plugin, das gar nichts tut.

@@ -1,0 +1,24 @@
+# @configure_input@
+
+TOP = "@top_srcdir@" ;
+if $(UNIX) {
+	CCFLAGS += -Wall -std=c99 -pedantic @CFLAGS@ @CPPFLAGS@ ;
+	PREFPLUGIN = lib ;
+	SUFPLUGIN = .so ;
+	GLIBLINKLIBS = @GLIB_LIBS@ ;
+	CUNITLINKLIBS = -lcunit ;
+	CURSESLINKLIBS = -lncurses ;
+	TILHDRS = $(TOP)$(SLASH)til$(SLASH)include ;
+	GLIBCFLAGS = @GLIB_CFLAGS@ ;
+}
+
+
+SubDir TOP ;
+
+SubInclude TOP til ;
+
+SubInclude TOP plugins dummy ;
+
+if @UNITTESTS_ENABLE@ = yes {
+	SubInclude TOP tests ;
+}

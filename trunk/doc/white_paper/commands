@@ -1,0 +1,64 @@
+move:
+	row:
+		- relative value:  how many rows to move
+		- flags specifying if visible or logical rows count
+		OR
+		- absolute value:  which row to move to
+	OR column:
+		- absolute value:  which column to move to
+	OR character:
+		- relative value:  how many objects to move
+		- linewrap: if we shall wrap around the line
+	OR word: OR sentence:
+		- relative value:  how many objects to move
+		- linewrap: if we shall wrap around the line
+	OR block: OR paragraph:
+		- relative value:  how many objects to move
+
+change cursor:
+	appearance:
+		- block or line, blinking etc.
+	color:
+		---
+
+set selection:
+	mode:
+		- none, normal, line or block
+	visible:
+		- visible or invisible selection, both cannot coexist
+
+	
+% Note: the commands marked with an "(S)" operate on the selected text
+
+delete (S):
+	
+insert:
+	- text: string or clipboard
+
+replace (S):
+	- text: string or clipboard
+
+copy (S):
+
+
+
+undo:
+	- number of levels to undo
+	
+redo:
+	- number of levels to redo
+
+indent (S):
+	- indentation count
+
+complete (S):
+
+format (S):
+
+
+open:
+	- URL: the document to open
+
+set status text:
+	- string: the string to be set as the status text
+
