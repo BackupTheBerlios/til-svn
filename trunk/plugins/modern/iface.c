@@ -1,4 +1,4 @@
-/*  dummy.c
+/*  iface.c
  *
  *  This file is part of the Text Input Layer (TIL).
  *  Copyright (C) 2005 Pascal Maillard <pascalmaillard@web.de>
@@ -20,6 +20,8 @@
  **/
 
 #include <til.h>
+#include <glib.h>
+#include <string.h>
 
 G_MODULE_EXPORT gboolean
 addView (TIL_View * pView)
@@ -36,6 +38,37 @@ removeView (TIL_View view)
 G_MODULE_EXPORT gboolean
 processEvent (TIL_View view, const TIL_Keyevent * event, TIL_Cmd *** pCmds)
 {
-	*pCmds = NULL;
+	GSList *cmdlist = NULL;
+	TIL_Cmd *pCmd = NULL;
+	gint numCmds = 0;
+	/* printable characters - replace the selected text with them */
+	if (event->text[0] != '\0')
+	{
+		gunichar c = g_utf8_get_char (event->text);
+		if (g_unichar_isprint (c))
+		{
+			size_t textlen = strlen (event->text);
+			pCmd = g_malloc (sizeof(TIL_Cmd) + textlen + 1);
+			pCmd->id = TIL_Cmd_Replace;
+			memcpy (pCmd->args, event->text, textlen + 1);
+			cmdlist = g_slist_append (cmdlist, pCmd);
+			numCmds++;
+		}
+	}
+
+	/* convert the list into an array */
+	TIL_Cmd ** cmds = g_malloc (sizeof(TIL_Cmd*) * (numCmds + 1));
+	GSList *temp = cmdlist;
+	int i=0;
+	while (temp != NULL)
+	{
+		cmds[i++] = temp->data;
+		temp = g_slist_next(temp);
+	}
+	cmds[i] = NULL;
+	*pCmds = cmds;
+	g_slist_free (cmdlist);
+
 	return TRUE;
 }
+

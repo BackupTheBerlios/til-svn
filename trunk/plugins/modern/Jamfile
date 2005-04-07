@@ -1,5 +1,5 @@
-SubDir TOP plugins dummy ;
+SubDir TOP plugins modern ;
 
 SubDirHdrs $(TILHDRS) ;
 SubDirCcFlags $(GLIBCFLAGS) ;
-Plugin dummy : dummy.c ;
+Plugin modern : iface.c ;

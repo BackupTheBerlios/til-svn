@@ -5,6 +5,8 @@ move:
 		OR
 		- absolute value:  which row to move to
 	OR column:
+		- relative value:  how many columns to move
+		OR
 		- absolute value:  which column to move to
 	OR character:
 		- relative value:  how many objects to move

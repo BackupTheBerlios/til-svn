@@ -42,6 +42,7 @@ error_cleanup ()
 		g_free (_lastErrorMessage);
 		_lastErrorMessage = NULL;
 	}
+	_lastErrorCode = 0;
 	return TRUE;
 }
 

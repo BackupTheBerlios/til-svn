@@ -17,8 +17,7 @@ if $(UNIX) {
 SubDir TOP ;
 
 SubInclude TOP til ;
-
-SubInclude TOP plugins dummy ;
+SubInclude TOP plugins ;
 
 if @UNITTESTS_ENABLE@ = yes {
 	SubInclude TOP tests ;

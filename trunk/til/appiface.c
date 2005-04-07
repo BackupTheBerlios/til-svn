@@ -178,7 +178,7 @@ til_changePlugin (TIL_View view, const gchar * pluginID)
 }
 
 gboolean
-til_processEvent (TIL_View view, TIL_Keyevent event, TIL_Cmd ** pCmds)
+til_processEvent (TIL_View view, const TIL_Keyevent * event, TIL_Cmd *** pCmds)
 {
 	if (view < 0 || view >= NUM_VIEWS || pCmds == NULL)
 		return FALSE;

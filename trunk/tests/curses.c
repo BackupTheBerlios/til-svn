@@ -19,30 +19,10 @@
  *  Boston, MA 02111-1307, USA.
  **/
 
-#include <glib.h>
-#include <CUnit/CUnit.h>
 #include <CUnit/Curses.h>
 
-extern CU_SuiteInfo tests_til_suiteInfo;
-
-int
-main ()
+void
+run_tests ()
 {
-	/* init test registry */
-	CU_initialize_registry ();
-
-	/* register suites and tests */
-	CU_SuiteInfo suites[] = {
-		tests_til_suiteInfo,
-		CU_SUITE_INFO_NULL,
-	};
-	CU_register_suites (suites);
-
-	/* run the tests */
 	CU_curses_run_tests ();
-
-	/* cleanup */
-	CU_cleanup_registry ();
-
-	return 0;
 }

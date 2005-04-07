@@ -1,4 +1,4 @@
-/*  commands.h
+/*  main.c
  *
  *  This file is part of the Text Input Layer (TIL).
  *  Copyright (C) 2005 Pascal Maillard <pascalmaillard@web.de>
@@ -18,35 +18,33 @@
  *  the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  *  Boston, MA 02111-1307, USA.
  **/
+#include <glib.h>
+#include <CUnit/CUnit.h>
 
-#ifndef _COMMANDS_H_
-#define _COMMANDS_H_
+extern void run_tests ();
 
-typedef enum _TIL_CmdID
+extern CU_SuiteInfo tests_til_suiteInfo;
+extern CU_SuiteInfo tests_plugin_modern_suiteInfo;
+
+int
+main ()
 {
-	TIL_Cmd_Move,
-	TIL_Cmd_ChangeCursor,
-	TIL_Cmd_SetSelection,
-	TIL_Cmd_Search,
-	TIL_Cmd_Delete,
-	TIL_Cmd_Insert,
-	TIL_Cmd_Replace,
-	TIL_Cmd_Copy,
-	TIL_Cmd_Undo,
-	TIL_Cmd_Redo,
-	TIL_Cmd_Indent,
-	TIL_Cmd_Complete,
-	TIL_Cmd_Format,
-	TIL_Cmd_Open,
-	TIL_Cmd_SetStatusText,
-} TIL_CmdID;
+	/* init test registry */
+	CU_initialize_registry ();
 
+	/* register suites and tests */
+	CU_SuiteInfo suites[] = {
+		tests_til_suiteInfo,
+		tests_plugin_modern_suiteInfo,
+		CU_SUITE_INFO_NULL,
+	};
+	CU_register_suites (suites);
 
-typedef struct _TIL_Cmd
-{
-	TIL_CmdID id;
-	gchar args[];
-} TIL_Cmd;
+	/* run the tests */
+	run_tests ();
 
+	/* cleanup */
+	CU_cleanup_registry ();
 
-#endif
+	return 0;
+}

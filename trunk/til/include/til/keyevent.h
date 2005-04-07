@@ -316,21 +316,21 @@ typedef enum _TIL_Keycode
 	TIL_Key_unknown = 0xffff,
 } TIL_Keycode;
 
-// we don't want the til plugins to use the modifiers - these are reserved for the application
-/*enum TIL_Modifier {
+/* sometimes modifiers must be allowed */
+enum TIL_Modifier {
 	TIL_Mod_Shift = 0x0100,
 	TIL_Mod_Control = 0x0200,
 	TIL_Mod_Alt = 0x0400,
 	TIL_Mod_Meta = 0x0800,
-};*/
+};
 
 typedef struct
 {
 	TIL_KeyeventType type;
 	gboolean autorep;
-	//gint modifiers;
+	gint modifiers;
 	TIL_Keycode keycode;
-	gchar *text;
+	gchar text[];
 } TIL_Keyevent;
 
 #endif

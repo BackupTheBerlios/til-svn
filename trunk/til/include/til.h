@@ -42,7 +42,7 @@ gint til_lastErrorCode ();
 const gchar *til_lastErrorMessage (); //TODO: i18n
 
 #define til_createPluginInfo() g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free)
-#define til_destroyPluginInfo( pi ) if (pi != NULL) g_hash_table_destroy (pi); else
+#define til_destroyPluginInfo(pi) if (pi != NULL) g_hash_table_destroy (pi); else
 gchar **til_getAvailableSysPlugins (); //TODO
 gchar **til_getPluginsInDir (gchar * path);
 /*const GHashTable* til_getPluginInfo( gchar* pluginID );*/
@@ -60,7 +60,8 @@ gboolean til_unregisterView (TIL_View view);
 gboolean til_unregisterAllViews ();
 gboolean til_setDefaultPlugin (const gchar * pluginID);
 gboolean til_changePlugin (TIL_View view, const gchar * pluginID);
-gboolean til_processEvent (TIL_View view, TIL_Keyevent event, TIL_Cmd ** pCmds);
+gboolean til_processEvent (TIL_View view, const TIL_Keyevent * event, TIL_Cmd *** pCmdArray);
+#define til_freeCmdArray(cmdArray) g_strfreev ((gchar **) cmdArray)
 
 #ifdef __cplusplus
 }

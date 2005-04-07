@@ -1,0 +1,10 @@
+id = til.modern
+name = Modern
+version = 0.1
+copyright = Pascal Maillard
+license = LGPL 2
+licenseurl = http://www.gnu.org
+author = Pascal Maillard
+url = http://til.berlios.de
+description = Modern input, used in most applications.
+description[de] = Moderne Eingabe, wird von den meisten Anwendungen verwendet.

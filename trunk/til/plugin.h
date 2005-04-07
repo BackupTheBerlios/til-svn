@@ -29,7 +29,7 @@
 #define TIL_PLUGIN_SUFFIX "tilplugin"
 
 typedef gboolean (*ViewFunc) (TIL_View);
-typedef gboolean (*ProcessEventFunc) (TIL_View, TIL_Keyevent, TIL_Cmd **);
+typedef gboolean (*ProcessEventFunc) (TIL_View, const TIL_Keyevent *, TIL_Cmd ***);
 
 typedef struct _Plugin
 {
