@@ -2,16 +2,26 @@
 
 TOP = "@top_srcdir@" ;
 if $(UNIX) {
-	CCFLAGS += -Wall -std=c99 -pedantic @CFLAGS@ @CPPFLAGS@ ;
 	PREFPLUGIN = lib ;
 	SUFPLUGIN = .so ;
-	GLIBLINKLIBS = @GLIB_LIBS@ ;
-	CUNITLINKLIBS = -lcunit ;
-	CURSESLINKLIBS = -lncurses ;
-	TILHDRS = $(TOP)$(SLASH)til$(SLASH)include ;
-	TILINTHDRS = $(TOP)$(SLASH)til ;
-	GLIBCFLAGS = @GLIB_CFLAGS@ ;
 }
+if $(MINGW) {
+        SLASH = \\ ;
+        MV              = move /y ;
+        CP              = copy ;
+        RM              = del /f/q ;
+        RMDIR           = rmdir /s/q ;
+	PREFPLUGIN = lib ;
+	SUFPLUGIN = .dll ;
+}
+
+CCFLAGS += -Wall -std=c99 -pedantic @CFLAGS@ @CPPFLAGS@ ;
+GLIBLINKLIBS = @GLIB_LIBS@ ;
+CUNITLINKLIBS = -lcunit ;
+CURSESLINKLIBS = -lncurses ;
+TILHDRS = $(TOP)$(SLASH)til$(SLASH)include ;
+TILINTHDRS = $(TOP)$(SLASH)til ;
+GLIBCFLAGS = @GLIB_CFLAGS@ ;
 
 
 SubDir TOP ;
@@ -20,5 +30,6 @@ SubInclude TOP til ;
 SubInclude TOP plugins ;
 
 if @UNITTESTS_ENABLE@ = yes {
+	UNITTESTS_CURSES = @UNITTESTS_CURSES@ ;
 	SubInclude TOP tests ;
 }

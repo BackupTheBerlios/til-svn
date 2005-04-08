@@ -5,10 +5,15 @@ SubDirHdrs $(TILINTHDRS) ;
 SubDirCcFlags $(GLIBCFLAGS) ;
 TESTSOURCES = main.c til.c plugin_modern.c ;
 TESTOBJECTS = $(TESTSOURCES:S=$(SUFOBJ)) ;
-Objects curses.c console.c $(TESTSOURCES) ;
-MainFromObjects curses : curses.o $(TESTOBJECTS) ;
-LinkLibraries curses : libtil ;
-LINKLIBS on curses$(SUFEXE) = $(GLIBLINKLIBS) $(CUNITLINKLIBS) $(CURSESLINKLIBS) ;
+Objects console.c $(TESTSOURCES) ;
+
 MainFromObjects console : console.o $(TESTOBJECTS) ;
 LinkLibraries console : libtil ;
 LINKLIBS on console$(SUFEXE) = $(GLIBLINKLIBS) $(CUNITLINKLIBS) ;
+
+if $(UNITTESTS_CURSES) = yes {
+	Objects curses.c ;
+	MainFromObjects curses : curses.o $(TESTOBJECTS) ;
+	LinkLibraries curses : libtil ;
+	LINKLIBS on curses$(SUFEXE) = $(GLIBLINKLIBS) $(CUNITLINKLIBS) $(CURSESLINKLIBS) ;
+}

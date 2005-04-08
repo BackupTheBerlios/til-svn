@@ -3,3 +3,4 @@ SubDir TOP plugins modern ;
 SubDirHdrs $(TILHDRS) ;
 SubDirCcFlags $(GLIBCFLAGS) ;
 Plugin modern : iface.c ;
+LINKLIBS on $(PREFPLUGIN)modern$(SUFPLUGIN) += $(GLIBLINKLIBS) ;

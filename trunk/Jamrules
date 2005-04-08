@@ -52,5 +52,5 @@ rule PluginFromObjects
 rule LinkSharedLib
 {
 	Link $(<) : $(>) ;
-	if $(UNIX) { LINKFLAGS on $(<) = -shared ; }
+	LINKFLAGS on $(<) += -shared ;
 }
