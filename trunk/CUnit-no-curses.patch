@@ -1,0 +1,45 @@
+diff -r -u CUnit-2.0-1/CUnit/Headers/Makefile.am cunit/CUnit/Headers/Makefile.am
+--- CUnit-2.0-1/CUnit/Headers/Makefile.am	2004-09-26 14:00:00.000000000 +0200
++++ cunit/CUnit/Headers/Makefile.am	2005-04-08 14:19:19.000000000 +0200
+@@ -10,7 +10,6 @@
+ INCLUDE_FILES = \
+ 	${FRAMEWORK_INCLUDES} \
+ 	${CONSOLE_INCLUDES} \
+-	${CURSES_INCLUDES} \
+ 	${AUTOMATED_INCLUDES} \
+ 	${BASIC_INCLUDES}
+ 
+diff -r -u CUnit-2.0-1/CUnit/Sources/Curses/Makefile.am cunit/CUnit/Sources/Curses/Makefile.am
+--- CUnit-2.0-1/CUnit/Sources/Curses/Makefile.am	2002-01-02 09:14:00.000000000 +0100
++++ cunit/CUnit/Sources/Curses/Makefile.am	2005-04-08 14:20:48.000000000 +0200
+@@ -1,4 +0,0 @@
+-noinst_LIBRARIES = libcunitcurses.a
+-
+-libcunitcurses_a_SOURCES = \
+-	Curses.c
+diff -r -u CUnit-2.0-1/CUnit/Sources/Makefile.am cunit/CUnit/Sources/Makefile.am
+--- CUnit-2.0-1/CUnit/Sources/Makefile.am	2004-09-26 14:00:00.000000000 +0200
++++ cunit/CUnit/Sources/Makefile.am	2005-04-08 14:19:45.000000000 +0200
+@@ -4,7 +4,7 @@
+ CURSES_OBJECTS = Curses/Curses.o
+ FRAMEWORK_OBJECTS = Framework/CUError.o Framework/MyMem.o Framework/TestDB.o Framework/TestRun.o Framework/Util.o
+ 
+-OBJECT_FILES = $(FRAMEWORK_OBJECTS) $(BASIC_OBJECTS) $(AUTOMATED_OBJECTS) $(CONSOLE_OBJECTS) $(CURSES_OBJECTS)
++OBJECT_FILES = $(FRAMEWORK_OBJECTS) $(BASIC_OBJECTS) $(AUTOMATED_OBJECTS) $(CONSOLE_OBJECTS)
+ 
+ TEST_OBJECTS = \
+ 	Framework/CUError_test.o \
+diff -r -u CUnit-2.0-1/Examples/CursesTest/Makefile.am cunit/Examples/CursesTest/Makefile.am
+--- CUnit-2.0-1/Examples/CursesTest/Makefile.am	2004-09-26 14:00:00.000000000 +0200
++++ cunit/Examples/CursesTest/Makefile.am	2005-04-08 14:21:32.000000000 +0200
+@@ -1,10 +0,0 @@
+-exampledir=${datadir}/@PACKAGE@/Examples/Curses
+-
+-example_PROGRAMS = CursesTest
+-
+-CursesTest_SOURCES = CursesTest.c CursesTest.h
+-CursesTest_LDADD = -lcunit -lcunitexamples -lncurses
+-CursesTest_LDFLAGS = -L..
+-INCLUDES = -I..
+-
+-example_DATA = README
