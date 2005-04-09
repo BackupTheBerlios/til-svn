@@ -1,0 +1,130 @@
+Note: The TIL cannot be installed yet!
+
+Building the TIL on Windows with MinGW is no simple task but we describe it in detail here so you cannot get lost.
+
+
+Getting the required software packages
+======================================
+
+You will need the following software packages:
+
+From http://www.mingw.org:
+- MSYS - we tested version 1.0.10
+- Minimalist GNU for Windows (MinGW) - we tested version 3.1
+
+From http://www.gimp.org/~tml/gimp/win32/downloads.html:
+- The Glib runtime
+- The Glib developer package
+- Pkg-config
+- GNU libiconv
+
+From ftp://ftp.perforce.com/pub/jam/:
+- Perforce Jam - we tested version 2.5
+
+From http://cunit.sourceforge.net (Optional):
+- CUnit 2.0
+
+CUnit is only needed for developers, normal users don't need it.
+
+
+Installing MSYS and MinGW
+=========================
+
+The following steps install MSYS and MinGW. This is the easiest and fastest way to do this, but if you really want to get accustomed with MSYS and MinGW, you should also read their manuals.
+
+First, install MSYS (we'll assume it is installed in C:\msys\1.0, but you can install it where you want, of course).
+
+Then, install MinGW into C:\msys\1.0\mingw.
+
+Verify that the path to MinGW has been stored in the environment variable PATH: Open the command window (aka "DOS box") and run (without the ">")
+
+> echo %PATH%
+
+If the path to MinGW does not appear here, read the MinGW manuals to see what you have to do.
+
+Now, extract the files from http://www.gimp.org/~tml/gimp/win32/downloads.html into C:\msys\1.0\mingw.
+
+
+Installing the required packages
+================================
+
+We will now install the other packages you downloaded and copy them into the MSYS tree. We will also copy the TIL directory into it. If you are familiar with MSYS, you can also "mount" it with the help of /etc/fstab, of course.
+
+There should be a directory C:\msys\1.0\home\_your_username_ in the MSYS tree. This is your home directory in MSYS. We will use it to build the following programs and the TIL. In the MSYS shell, you can always switch to this directory by issuing the command "cd" without arguments. The symbol "~" also refers to this directory.
+
+Extract the jam archive into _home_dir_\jam.
+
+If you want to install CUnit, extract it into your home directory as well. The subdirectory will be created automatically. Rename it to "cunit".
+
+To be able to simply access the TIL files from MSYS, copy the directory into your home directory, too. Give it a simple name, e.g. "til".
+
+Now, fire up the MSYS shell. We will first need to prepare the Glib so that we can use it with MinGW. Do the following (to understand what this does, visit http://mingw.org/mingwfaq.shtml#faq-msvcdll):
+
+$ cd /mingw/lib
+$ dlltool -U -d glib-2.0.def -l libglib-2.0.a
+$ dlltool -U -d gmodule-2.0.def -l libgmodule-2.0.a
+$ dlltool -U -d gthread-2.0.def -l libgthread-2.0.a
+
+Good, now we will build jam. First, go to the directory you extrated jam to:
+
+$ cd ~/jam
+
+We will first have to edit the file "Makefile" to tell jam it shall use MinGW. Open the file with
+
+$ edit Makefile
+or
+$ vi Makefile
+
+if you are used to the editor vi. Now, go to the line "# MingW32" and remove the number signs from the two following lines:
+
+#CC = gcc
+#CFLAGS = -DMINGW
+
+will change to
+
+CC = gcc
+CFLAGS = -DMINGW
+
+Now, build jam with
+
+$ make
+
+A file "jam0.exe" will be created, which you can install with
+
+$ ./jam0 -sBINDIR=/mingw/bin install
+
+The following section describes how to install CUnit. If you don't want to do this, you can skip to the paragraph "Configuring & Building the TIL".
+
+Installing CUnit requires a bit of tweaking. We cannot install the CUnit as it is, since we do not have ncurses (it does not work with MSYS) and unfortunately CUnit uses ncurses on Unix by default (on MSYS as well). Therefore, we first have to apply a patch which is shipped with the TIL as the file CUnit-no-curses.patch. Did you copy the directory with the TIL files into your home directory? If not, do this now. Then in MSYS, issue the commands
+
+$ cd ~/cunit
+$ patch -p1 -i ../til/CUnit-no-curses.patch
+
+(this is a "one" after "-p").
+
+Now you can build and install CUnit with
+
+$ ./configure --prefix=/mingw; make; make install
+
+That's it!
+
+
+Configuring & Building the TIL
+==============================
+
+Now, we come to the fun part: building the TIL. As we have done great work before, this is now very easy:
+
+$ cd ~/til
+$ ./configure; jam
+
+If everything went right, you should see as the last line
+
+	"...updated <N> targets..."
+
+If something went wrong, you will also see
+
+	"...failed updating <N> targets..."
+
+In this case, check if you did exactly what was written here and/or do the steps again. If the problem persists, go to our website and ask in the forums.
+
+If you want to build the unit tests, pass the flag --enable-unittests to configure. In this case, you will need CUnit. If you also want a nice curses frontend, you need the ncurses library as well.

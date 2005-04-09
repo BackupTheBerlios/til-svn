@@ -1,0 +1,16 @@
+Text Input Layer - README file
+
+http://til.berlios.de
+
+The Text Input Layer (TIL) is a library that can be used by applications that interactively edit text documents. It transforms the user's physical input into a common logical representation of the input using a dynamic plugin system. To get a detailed introduction into the motivation and the goals of the TIL, read our white paper. It's LaTeX sources are contained in this package (doc/white_paper/white_paper.tex). If you have a working TeX installation (e.g. TeTeX), you can create a PDF file from them by simply issuing
+
+$ cd doc
+$ cd white_paper
+$ pdflatex white_paper.tex
+$ pdflatex white_paper.tex
+
+(yes, the last command has to be run 2 times). You can also download the PDF from our website (see above) or from our project site at BerliOS (http://developer.berlios.de/projects/til).
+
+Currently, the TIL has been tested on GNU/Linux and Windows using MSYS/MinGW. This does not mean that it does not run on other platforms, as well. We plan to bring the TIL to as many Unix variants as possible (specifically, GNU/Linux, BSD and Mac OS X), as well as Windows (with MSYS/MinGW or Cygwin, and perhaps MSVC). We are very grateful if anybody wants to help porting the TIL to these or other platforms. If you want to do this, please contact us.
+
+To build the TIL on GNU/Linux or Windows, please read the files INSTALL.unix or INSTALL.mingw, resp. The file INSTALL.generic contains generic installation instructions for Unix which are not really correct because we haven't implemented a build system based on "make". However, the information regarding the configure script can still be very valuable.

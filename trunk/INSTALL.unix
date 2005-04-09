@@ -1,0 +1,26 @@
+Note: The TIL cannot be installed yet!
+
+Building the TIL on Unix is fairly simple. First, you must install some programs and libraries. These are:
+
+- a C compiler (we recommend GCC)
+- Perforce Jam - we tested version 2.5, if it is not included in your distribution, you can get it from http://www.perforce.com/jam/jam.html
+- GLIB >= 2.4, headers and libraries
+- optional: CUnit 2.0, headers and libraries (http://cunit.sourceforge.net)
+- optional: ncurses, only the library
+
+The last two packages are only needed for developers, normal users don't need them.
+
+Now, you can simply configure and build the TIL with
+
+$ ./configure; jam
+
+If everything went right, you should see as the last line
+
+	"...updated <N> targets..."
+
+If something went wrong, you will also see
+
+	"...failed updating <N> targets..."
+
+
+If you want to build the unit tests, pass the flag --enable-unittests to configure. In this case, you will need CUnit. If you also want a nice curses frontend, you need the ncurses library as well.

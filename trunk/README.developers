@@ -13,23 +13,20 @@ Contents
 
 This file explains what you need to do if you want to help developing the Text Input Layer (TIL). Please read it carefully!
 
+
 1. Location of the TIL
 ======================
 
 The homepage of the TIL is http://til.berlios.de. Its sources are stored in a Subversion repository. To download them, go to the project page, follow the link labeled "SVN" and do what you are told.
 
+
 2. Configuring & building the TIL
 =================================
 
-To configure & build the TIL, you need the following programs/libraries:
+Unix & MinGW
+------------
 
-- a C compiler (we recommend GCC)
-- GNU Autoconf
-- Perforce Jam
-- GLIB >= 2.4, headers and libraries
-- CUnit >= 2.0 (for unit tests), headers and libraries
-- ncurses (recommended for unit tests), only the library
-
+In addition to the software mentioned in INSTALL.unix or INSTALL.mingw, you need GNU Autoconf version 2.56 or above. If you are using MSYS/MinGW, you can download it from their website.
 
 The code from the Subversion archive does not contain any configure script. You have to generate that first. To do it, issue the following commands:
 
@@ -38,25 +35,12 @@ $ autoconf
 
 You will now see a script named "configure" in the directory.
 
-Now, you must configure the TIL sources. When you do this, you also specify a build directory. We recommend to build the TIL in a separate directory to keep the directory with the sources clean. The commands you need to issue are:
+Now you can proceed as described in the files INSTALL.unix and INSTALL.mingw, resp. For development however, we recommend to build the TIL in a separate directory to keep the directory with the sources clean. You'll also find it helpful to build the TIL with debugging information. The commands you will need to issue are:
 
 $ cd _build_directory_
 $ CFLAGS=-g _sources_directory_/configure --srcdir=_sources_directory_ --enable-unittests
 
-With the CFLAGS=-g switch, the TIL will be built with debugging information - very useful. The --enable-unittests switch enables the unit tests, which are used to test if the TIL works correctly.
-
-Now you can build the TIL with jam:
-
-$ jam
-
-If everything went right, you should see as the last line
-
-$ "...updated <N> targets..."
-
-If something went wrong, you will also see
-
-$ "...failed updating <N> targets..."
-
+Go on, read the INSTALL file for your system, configure and build the TIL and then return.
 
 
 3. Running the tests
@@ -78,4 +62,4 @@ Note: You have to run the tests from the top-level directory, otherwise they can
 4. Contributing code
 ====================
 
-We always appreciate patches. To contribute a patch, please use the Patch Manager at our BerliOS project page. Please use GNU indent to format the code. Use the file til.indent.pro for this. To do this, you have to copy it to the current directory and rename it to .indent.pro.
+We always appreciate patches. To contribute a patch, please use the Patch Manager at our BerliOS project page. Please use GNU indent to format the code. Use the file til.indent.pro for this. To do this, copy it to the current directory and rename it to ".indent.pro", then run "indent" without arguments.
