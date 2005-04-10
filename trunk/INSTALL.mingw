@@ -21,8 +21,8 @@ From http://www.gimp.org/~tml/gimp/win32/downloads.html:
 From ftp://ftp.perforce.com/pub/jam/:
 - Perforce Jam - we tested version 2.5
 
-From http://cunit.sourceforge.net (Optional):
-- CUnit 2.0
+From http://til.berlios.de (Optional):
+- CUnit 2.0 without curses
 
 CUnit is only needed for developers, normal users don't need it.
 
@@ -47,7 +47,7 @@ There should be a directory C:\msys\1.0\home\_your_username_ in the MSYS tree. T
 
 Extract the jam archive into _home_dir_\jam.
 
-If you want to install CUnit, extract it into your home directory as well. The subdirectory will be created automatically. Rename it to "cunit".
+If you want to install CUnit, extract it into your home directory as well. The subdirectory will be created automatically.
 
 To be able to simply access the TIL files from MSYS, copy the directory into your home directory, too. Give it a simple name, e.g. "til".
 
@@ -92,9 +92,7 @@ $ ./jam0 -sBINDIR=/mingw/bin install
 
 The following section describes how to install CUnit. If you don't want to do this, you can skip to the paragraph "Configuring & Building the TIL".
 
-Installing CUnit requires a bit of tweaking. We cannot install the CUnit as it is, since we do not have ncurses (it does not work with MSYS) and unfortunately CUnit uses ncurses on Unix by default (on MSYS as well). Therefore, we first have to apply a patch which is shipped with the TIL as the file CUnit-no-curses.zip. Just unzip it into the cunit directory.
-
-Now you can build and install CUnit with
+You may have noticed that our version is not the "official" version. The reason for this is that we cannot install the CUnit as it is, since we do not have ncurses (it does not work with MSYS) and unfortunately CUnit uses ncurses on Unix by default (on MSYS as well). Therefore, we made a version that builds CUnit without the curses frontend (and without the documentation, the manpages and the examples). To install it, "cd" to its directory and do
 
 $ ./configure --prefix=/mingw; make; make install
 
