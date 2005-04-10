@@ -1,0 +1,58 @@
+This a list of what still should be done.
+
+soon
+====
+
+library:
+- specify basic commands and their arguments
+- make all the functions use the error reporting system
+- make the TIL use a "system directory" to store plugins
+
+plugins:
+- complete the "modern" plugin
+
+apps:
+- hack an example application that supports all the basic commands
+
+documentation:
+- document the basic commands
+
+build system:
+- build the TIL as a dynamic library
+- make the TIL installable
+
+porting:
+- port to Mac OS X
+
+website:
+- create :)
+
+
+later
+=====
+
+library:
+- write an interface for the plugins to retrieve information about the document
+- specify all commands
+- make the functions thread-safe
+- internationalization
+
+plugins:
+- write a "vi" plugin
+
+apps:
+- extend the example application to support all the commands and to have
+  many views in different threads
+
+documentation:
+- complete documentation in texinfo
+
+build system:
+- implement make-based build system
+
+porting:
+- port to as many platforms as possible (including BSD, Cygwin, MSVC)
+- provide wrappers to the library for different platforms & toolkits
+
+website:
+- maintain :)
