@@ -23,6 +23,8 @@ The homepage of the TIL is http://til.berlios.de. Its sources are stored in a Su
 2. Configuring & building the TIL
 =================================
 
+Note: The third party software that is available from our website (currently only a modified version of CUnit) is also contained in the directory "3rdparty" of the Subversion archive.
+
 Unix & MinGW
 ------------
 
