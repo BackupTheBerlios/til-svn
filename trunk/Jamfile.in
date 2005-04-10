@@ -1,16 +1,16 @@
 # @configure_input@
 
-TOP = "@top_srcdir@" ;
 if $(UNIX) {
+	TOP = "@top_srcdir@" ;
 	PREFPLUGIN = lib ;
 	SUFPLUGIN = .so ;
-}
-if $(MINGW) {
-        SLASH = \\ ;
-        MV              = move /y ;
-        CP              = copy ;
-        RM              = del /f/q ;
-        RMDIR           = rmdir /s/q ;
+} else if $(MINGW) {
+	SLASH = \\ ;
+	MV              = move /y ;
+	CP              = copy ;
+	RM              = del /f/q ;
+	RMDIR           = rmdir /s/q ;
+	TOP = "@win_top_srcdir@" ;
 	PREFPLUGIN = lib ;
 	SUFPLUGIN = .dll ;
 }
