@@ -2,7 +2,7 @@ Text Input Layer - README file
 
 http://til.berlios.de
 
-The Text Input Layer (TIL) is a library that can be used by applications that interactively edit text documents. It transforms the user's physical input into a common logical representation of the input using a dynamic plugin system. To get a detailed introduction into the motivation and the goals of the TIL, read our white paper. It's LaTeX sources are contained in this package (doc/white_paper/white_paper.tex). If you have a working TeX installation (e.g. TeTeX), you can create a PDF file from them by simply issuing
+The Text Input Layer (TIL) is a library that can be used by applications that interactively edit text documents. It transforms the user's physical input into a common logical representation of the input using a dynamic plugin system. To get a detailed introduction into the motivation and the goals of the TIL, please read our white paper. Its LaTeX sources are contained in this package (see the file doc/white_paper/white_paper.tex). If you have a working TeX installation (e.g. TeTeX), you can create a PDF file from them by simply issuing
 
 $ cd doc
 $ cd white_paper
@@ -13,4 +13,7 @@ $ pdflatex white_paper.tex
 
 Currently, the TIL has been tested on GNU/Linux and Windows using MSYS/MinGW. This does not mean that it does not run on other platforms, as well. We plan to bring the TIL to as many Unix variants as possible (specifically, GNU/Linux, BSD and Mac OS X), as well as Windows (with MSYS/MinGW or Cygwin, and perhaps MSVC). We are very grateful if anybody wants to help porting the TIL to these or other platforms. If you want to do this, please contact us.
 
-To build the TIL on GNU/Linux or Windows, please read the files INSTALL.unix or INSTALL.mingw, resp. The file INSTALL.generic contains generic installation instructions for Unix which are not really correct because we haven't implemented a build system based on "make". However, the information regarding the configure script can still be very valuable.
+To build the TIL on GNU/Linux or Windows, please read the files INSTALL.unix or INSTALL.mingw, resp. Please note that these files assume that you have downloaded a release package and not the code as it is stored in the Subversion archive. If the latter is the case, you might want to read the file README.developers, which describes among other things how the build the TIL from the sources from the archive.
+
+The file INSTALL.generic contains generic installation instructions for Unix which are not really correct because our build system is based on "jam", not on "make". However, the information regarding the configure script can still be very valuable.
+
