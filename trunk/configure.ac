@@ -38,7 +38,7 @@ if test x$UNITTESTS_ENABLE == xyes; then
 fi
 
 # on Windows, the path to the source directory must be written with backslashes
-win_top_srcdir=`echo $srcdir|sed -e 's@/@\\\\@g'`
+win_top_srcdir=`echo $srcdir|sed -e 's@/@\\\\\\\\@g'`
 AC_SUBST([win_top_srcdir])
 
 AC_CONFIG_FILES([Jamfile])
