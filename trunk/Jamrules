@@ -15,8 +15,10 @@ rule Plugin
 
 	PluginFromObjects $(<) : $(>:S=$(SUFOBJ)) ;
 	Objects $(>) ;
-	Bulk plugins$(SLASH)$(<) : $(<).tilplugin ;
-	Depends plugins$(SLASH)$(<)$(SLASH)$(<).tilplugin : $(<) ;
+	if $(TOP) != $(DOT) {
+		Bulk plugins$(SLASH)$(<) : $(<).tilplugin ;
+		Depends plugins$(SLASH)$(<)$(SLASH)$(<).tilplugin : $(<) ;
+	}
 }
 
 rule PluginFromObjects
