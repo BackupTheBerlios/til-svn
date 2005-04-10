@@ -1,4 +1,4 @@
-Note: The TIL cannot be installed yet!
+Note: The TIL can be built but not installed yet!
 
 Building the TIL on Windows with MinGW is no simple task but we describe it in detail here so you cannot get lost.
 
@@ -36,19 +36,12 @@ First, install MSYS (we'll assume it is installed in C:\msys\1.0, but you can in
 
 Then, install MinGW into C:\msys\1.0\mingw.
 
-Verify that the path to MinGW has been stored in the environment variable PATH: Open the command window (aka "DOS box") and run (without the ">")
-
-> echo %PATH%
-
-If the path to MinGW does not appear here, read the MinGW manuals to see what you have to do.
-
-Now, extract the files from http://www.gimp.org/~tml/gimp/win32/downloads.html into C:\msys\1.0\mingw.
-
-
 Installing the required packages
 ================================
 
 We will now install the other packages you downloaded and copy them into the MSYS tree. We will also copy the TIL directory into it. If you are familiar with MSYS, you can also "mount" it with the help of /etc/fstab, of course.
+
+First, extract the files from http://www.gimp.org/~tml/gimp/win32/downloads.html into C:\msys\1.0\mingw.
 
 There should be a directory C:\msys\1.0\home\_your_username_ in the MSYS tree. This is your home directory in MSYS. We will use it to build the following programs and the TIL. In the MSYS shell, you can always switch to this directory by issuing the command "cd" without arguments. The symbol "~" also refers to this directory.
 
@@ -69,13 +62,15 @@ Good, now we will build jam. First, go to the directory you extrated jam to:
 
 $ cd ~/jam
 
-We will first have to edit the file "Makefile" to tell jam it shall use MinGW. Open the file with
+We will first have to edit the file "Makefile" to tell jam it shall use MinGW. Disable the write protection with
 
-$ edit Makefile
-or
+$ chmod +w Makefile
+
+If you are used to the editor "vi", you can just edit the file with
+
 $ vi Makefile
 
-if you are used to the editor vi. Now, go to the line "# MingW32" and remove the number signs from the two following lines:
+If you don't know "vi" or don't want to use it, edit the file under Windows (e.g. with WordPad). Now, go to the line "# MingW32" and remove the number signs from the two following lines:
 
 #CC = gcc
 #CFLAGS = -DMINGW
@@ -85,7 +80,9 @@ will change to
 CC = gcc
 CFLAGS = -DMINGW
 
-Now, build jam with
+Save the file.
+
+Now build jam with
 
 $ make
 
@@ -95,12 +92,7 @@ $ ./jam0 -sBINDIR=/mingw/bin install
 
 The following section describes how to install CUnit. If you don't want to do this, you can skip to the paragraph "Configuring & Building the TIL".
 
-Installing CUnit requires a bit of tweaking. We cannot install the CUnit as it is, since we do not have ncurses (it does not work with MSYS) and unfortunately CUnit uses ncurses on Unix by default (on MSYS as well). Therefore, we first have to apply a patch which is shipped with the TIL as the file CUnit-no-curses.patch. Did you copy the directory with the TIL files into your home directory? If not, do this now. Then in MSYS, issue the commands
-
-$ cd ~/cunit
-$ patch -p1 -i ../til/CUnit-no-curses.patch
-
-(this is a "one" after "-p").
+Installing CUnit requires a bit of tweaking. We cannot install the CUnit as it is, since we do not have ncurses (it does not work with MSYS) and unfortunately CUnit uses ncurses on Unix by default (on MSYS as well). Therefore, we first have to apply a patch which is shipped with the TIL as the file CUnit-no-curses.zip. Just unzip it into the cunit directory.
 
 Now you can build and install CUnit with
 
@@ -112,7 +104,7 @@ That's it!
 Configuring & Building the TIL
 ==============================
 
-Now, we come to the fun part: building the TIL. As we have done great work before, this is now very easy:
+Now we come to the fun part: building the TIL. As we have done great work before, this is now very easy:
 
 $ cd ~/til
 $ ./configure; jam

@@ -1,4 +1,4 @@
-Note: The TIL cannot be installed yet!
+Note: The TIL can be built but not installed yet!
 
 Building the TIL on Unix is fairly simple. First, you must install some programs and libraries. These are:
 
