@@ -4,11 +4,11 @@ if $(UNIX) {
 	TOP = "@top_srcdir@" ;
 	PREFPLUGIN = lib ;
 	if $(OS) != MACOSX {
-		SUFSHLIB = .so ;
-		SHLIBLINKFLAGS = -shared ;
+		SUFPLUGIN = .so ;
+		PLUGINLINKFLAGS = -shared ;
 	} else {
-		SUFSHLIB = .dylib ;
-		SHLIBLINKFLAGS = -dynamiclib ;
+		SUFPLUGIN = .so ;
+		PLUGINLINKFLAGS = -bundle ;
 	}
 } else if $(MINGW) {
 	SLASH = \\ ;
@@ -18,8 +18,8 @@ if $(UNIX) {
 	RMDIR           = rmdir /s/q ;
 	TOP = "@win_top_srcdir@" ;
 	PREFPLUGIN = lib ;
-	SUFSHLIB = .dll ;
-	SHLIBLINKFLAGS = -shared ;
+	SUFPLUGIN = .dll ;
+	PLUGINLINKFLAGS = -shared ;
 }
 
 CCFLAGS += -Wall -std=c99 -pedantic @CFLAGS@ @CPPFLAGS@ ;
