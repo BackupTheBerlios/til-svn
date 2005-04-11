@@ -29,7 +29,7 @@ rule PluginFromObjects
 	# Add suffix to plugin
 
 	_s = [ FGristFiles $(>) ] ;
-	_t = [ FAppendSuffix $(<) : $(SUFPLUGIN) ] ;
+	_t = [ FAppendSuffix $(<) : $(SUFSHLIB) ] ;
 	_t = $(PREFPLUGIN)$(_t) ;
 
 	# so 'jam foo' works when it's really foo.so
@@ -54,5 +54,5 @@ rule PluginFromObjects
 rule LinkSharedLib
 {
 	Link $(<) : $(>) ;
-	LINKFLAGS on $(<) += -shared ;
+	LINKFLAGS on $(<) += $(SHLIBLINKFLAGS) ;
 }

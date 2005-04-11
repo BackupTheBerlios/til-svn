@@ -3,7 +3,13 @@
 if $(UNIX) {
 	TOP = "@top_srcdir@" ;
 	PREFPLUGIN = lib ;
-	SUFPLUGIN = .so ;
+	if $(OS) != MACOSX {
+		SUFSHLIB = .so ;
+		SHLIBLINKFLAGS = -shared ;
+	} else {
+		SUFSHLIB = .dylib ;
+		SHLIBLINKFLAGS = -dynamiclib ;
+	}
 } else if $(MINGW) {
 	SLASH = \\ ;
 	MV              = move /y ;
@@ -12,16 +18,17 @@ if $(UNIX) {
 	RMDIR           = rmdir /s/q ;
 	TOP = "@win_top_srcdir@" ;
 	PREFPLUGIN = lib ;
-	SUFPLUGIN = .dll ;
+	SUFSHLIB = .dll ;
+	SHLIBLINKFLAGS = -shared ;
 }
 
 CCFLAGS += -Wall -std=c99 -pedantic @CFLAGS@ @CPPFLAGS@ ;
+GLIBCFLAGS = @GLIB_CFLAGS@ ;
 GLIBLINKLIBS = @GLIB_LIBS@ ;
 CUNITLINKLIBS = -lcunit ;
 CURSESLINKLIBS = -lncurses ;
 TILHDRS = $(TOP)$(SLASH)til$(SLASH)include ;
 TILINTHDRS = $(TOP)$(SLASH)til ;
-GLIBCFLAGS = @GLIB_CFLAGS@ ;
 
 
 SubDir TOP ;
