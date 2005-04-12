@@ -22,7 +22,12 @@
 #ifndef _COMMANDS_H_
 #define _COMMANDS_H_
 
-typedef enum _TIL_CmdID
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+typedef enum
 {
 	TIL_Cmd_Move,
 	TIL_Cmd_ChangeCursor,
@@ -42,11 +47,133 @@ typedef enum _TIL_CmdID
 } TIL_CmdID;
 
 
-typedef struct _TIL_Cmd
+typedef struct
 {
 	TIL_CmdID id;
 	gchar args[];
 } TIL_Cmd;
 
+
+/*
+ * "move" command
+ */
+
+typedef enum
+{
+	TIL_Cmd_Move_Row,
+	TIL_Cmd_Move_Column,
+	TIL_Cmd_Move_Character,
+	TIL_Cmd_Move_Word,
+	TIL_Cmd_Move_Sentence,
+	TIL_Cmd_Move_Block,
+	TIL_Cmd_Move_Paragraph,
+} TIL_Cmd_Move_Entity;
+
+#define TIL_Cmd_Move_Relative 1
+#define TIL_Cmd_Move_Linewrap 2
+#define TIL_Cmd_Move_Virtual  4
+
+typedef struct 
+{
+	TIL_Cmd_Move_Entity entity;
+	guint flags;
+} TIL_Cmd_Move_Args;
+
+
+/*
+ * "change cursor" command
+ */
+
+/* TODO */
+
+/*
+ * "set selection" command
+ */
+
+typedef enum
+{
+	TIL_Cmd_Select_None,
+	TIL_Cmd_Select_Normal,
+	TIL_Cmd_Select_Line,
+	TIL_Cmd_Select_Block,
+} TIL_Cmd_Select_Modes;
+
+/*
+ * "delete" command
+ */
+
+/* no arguments, operates on the selected text */
+
+/*
+ * "insert" command
+ */
+
+typedef struct
+{
+	gboolean clipboard;
+	gchar text[];
+} TIL_Cmd_Insert_Args;
+
+/*
+ * "replace" command
+ */
+
+typedef struct
+{
+	gboolean clipboard;
+	gchar text[];
+} TIL_Cmd_Replace_Args;
+
+/*
+ * "copy" command
+ */
+
+/* no arguments, operates on the selected text */
+
+/*
+ * "undo" command
+ */
+
+/* passes a "gint" telling how many levels to undo */
+
+/*
+ * "redo" command
+ */
+
+/* passes a "gint" telling how many levels to redo */
+
+/*
+ * "indent" command
+ */
+
+/* TODO */
+
+/*
+ * "complete" command
+ */
+
+/* TODO */
+
+/*
+ * "format" command
+ */
+
+/* TODO */
+
+/*
+ * "open" command
+ */
+
+/* passes an UTF-8 string with the URL to open */
+
+/*
+ * "set status text" command
+ */
+
+/* TODO */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

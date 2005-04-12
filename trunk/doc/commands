@@ -26,8 +26,6 @@ change cursor:
 set selection:
 	mode:
 		- none, normal, line or block
-	visible:
-		- visible or invisible selection, both cannot coexist
 
 	
 % Note: the commands marked with an "(S)" operate on the selected text
