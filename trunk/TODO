@@ -9,7 +9,7 @@ library:
 - make the TIL use a "system directory" to store plugins
 
 plugins:
-- write tests for the "modern" plugin
+- write tests for the "modern" plugin -- IN PROGRESS
 - complete the "modern" plugin
 
 apps:
@@ -27,6 +27,9 @@ porting:
 
 website:
 - create :)
+
+
+--> here: first release
 
 
 later
