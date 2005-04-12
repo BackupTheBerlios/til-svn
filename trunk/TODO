@@ -4,11 +4,12 @@ soon
 ====
 
 library:
-- specify basic commands and their arguments
+- specify basic commands and their arguments -- DONE
 - make all the functions use the error reporting system
 - make the TIL use a "system directory" to store plugins
 
 plugins:
+- write tests for the "modern" plugin
 - complete the "modern" plugin
 
 apps:
@@ -22,7 +23,7 @@ build system:
 - make the TIL installable
 
 porting:
-- port to Mac OS X
+- port to Mac OS X -- DONE
 
 website:
 - create :)
