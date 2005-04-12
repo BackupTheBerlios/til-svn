@@ -24,11 +24,11 @@
 
 #include <glib.h>
 
-typedef enum _TIL_KeyeventType
+typedef enum _TIL_Keyevent_Type
 {
 	TIL_Event_Pressed,
 	TIL_Event_Released,
-} TIL_KeyeventType;
+} TIL_Keyevent_Type;
 
 typedef enum _TIL_Keycode
 {
@@ -326,7 +326,7 @@ enum TIL_Modifier {
 
 typedef struct
 {
-	TIL_KeyeventType type;
+	TIL_Keyevent_Type type;
 	gboolean autorep;
 	gint modifiers;
 	TIL_Keycode keycode;

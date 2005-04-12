@@ -30,8 +30,8 @@ extern "C"
 typedef enum
 {
 	TIL_Cmd_Move,
-	TIL_Cmd_ChangeCursor,
-	TIL_Cmd_SetSelection,
+	TIL_Cmd_Cursor,
+	TIL_Cmd_Select,
 	TIL_Cmd_Search,
 	TIL_Cmd_Delete,
 	TIL_Cmd_Insert,
@@ -43,7 +43,7 @@ typedef enum
 	TIL_Cmd_Complete,
 	TIL_Cmd_Format,
 	TIL_Cmd_Open,
-	TIL_Cmd_SetStatusText,
+	TIL_Cmd_Status,
 } TIL_CmdID;
 
 
@@ -69,13 +69,15 @@ typedef enum
 	TIL_Cmd_Move_Paragraph,
 } TIL_Cmd_Move_Entity;
 
-#define TIL_Cmd_Move_Relative 1
-#define TIL_Cmd_Move_Linewrap 2
-#define TIL_Cmd_Move_Virtual  4
+#define TIL_Cmd_Move_Previous 1
+#define TIL_Cmd_Move_Relative 2
+#define TIL_Cmd_Move_Linewrap 4
+#define TIL_Cmd_Move_Virtual  8
 
 typedef struct 
 {
 	TIL_Cmd_Move_Entity entity;
+	gint count;
 	guint flags;
 } TIL_Cmd_Move_Args;
 
