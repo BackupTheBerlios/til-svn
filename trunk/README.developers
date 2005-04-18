@@ -50,11 +50,11 @@ Go on, read the INSTALL file for your system, configure and build the TIL and th
 
 Now you can run the unit tests. Run
 
-$ tests/curses
+$ tests/units/curses
 
 to run the curses version or
 
-$ tests/console
+$ tests/units/console
 
 to run the console version.
 
