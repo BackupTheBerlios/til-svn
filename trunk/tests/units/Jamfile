@@ -1,4 +1,4 @@
-SubDir TOP tests ;
+SubDir TOP tests units ;
 
 SubDirHdrs $(TILHDRS) ;
 SubDirHdrs $(TILINTHDRS) ;
