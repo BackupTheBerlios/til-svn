@@ -1,1 +1,1 @@
--gnu -ts4 -l96
+-gnu -ts4 -i4 -l96 -bli0
