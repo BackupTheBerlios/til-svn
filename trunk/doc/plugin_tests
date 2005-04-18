@@ -1,0 +1,13 @@
+brainstorming for plugin tests:
+
+abstract: unittests with CUnit or another framework are not suited for testing the correct functionality of a plugin. It would be better to have a small app (that can run automatically) which can be filled with <key, expected commands> pairs like:
+
+hit :: <UP> :: move (row, 1, prev|rel|virtual)
+press :: <SHIFT>
+hit :: <LEFT> :: select (normal) :: move (character, 1, prev|rel|wrap)
+release :: <SHIFT>
+hit :: <RIGHT> :: select (none) :: move (character, 1, rel|wrap)
+press :: A :: replace (A)
+pressrep :: A :: replace (A)
+release :: A
+
