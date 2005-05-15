@@ -27,7 +27,7 @@
 typedef struct
 {
 	TIL_Keyevent *keyevent;	
-	TIL_Command **commands;
+	TIL_Cmd **commands;
 } TestPair;
 
 gboolean openTestFile (gchar * filename);

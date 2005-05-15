@@ -44,6 +44,7 @@ typedef enum
 	TIL_Cmd_Format,
 	TIL_Cmd_Open,
 	TIL_Cmd_Status,
+	TIL_Cmd_Unknown = 0xffff,
 } TIL_CmdID;
 
 
@@ -69,10 +70,11 @@ typedef enum
 	TIL_Cmd_Move_Paragraph,
 } TIL_Cmd_Move_Entity;
 
-#define TIL_Cmd_Move_Previous 1
-#define TIL_Cmd_Move_Relative 2
-#define TIL_Cmd_Move_Linewrap 4
-#define TIL_Cmd_Move_Virtual  8
+#define TIL_Cmd_Move_Backwards    0x01
+#define TIL_Cmd_Move_EndOf        0x02
+#define TIL_Cmd_Move_Absolute     0x04
+#define TIL_Cmd_Move_NoLineWrap   0x08
+#define TIL_Cmd_Move_Virtual      0x10
 
 typedef struct 
 {
@@ -98,7 +100,12 @@ typedef enum
 	TIL_Cmd_Select_Normal,
 	TIL_Cmd_Select_Line,
 	TIL_Cmd_Select_Block,
-} TIL_Cmd_Select_Modes;
+} TIL_Cmd_Select_Mode;
+
+typedef struct
+{
+	TIL_Cmd_Select_Mode mode;
+} TIL_Cmd_Select_Args;
 
 /*
  * "delete" command
@@ -120,11 +127,8 @@ typedef struct
  * "replace" command
  */
 
-typedef struct
-{
-	gboolean clipboard;
-	gchar text[];
-} TIL_Cmd_Replace_Args;
+/* same args as insert */
+typedef TIL_Cmd_Insert_Args TIL_Cmd_Replace_Args;
 
 /*
  * "copy" command
