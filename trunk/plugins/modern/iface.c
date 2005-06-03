@@ -47,8 +47,9 @@ processEvent (TIL_View view, const TIL_Keyevent * event, TIL_Cmd *** pCmds)
 		gunichar c = g_utf8_get_char (event->text);
 		if (g_unichar_isprint (c))
 		{
-			size_t textlen = strlen (event->text);
-			pCmd = g_malloc (sizeof(TIL_Cmd) + textlen + 1);
+			size_t size = sizeof(TIL_Cmd) + strlen (event->text) + 1
+			pCmd = g_malloc (size);
+			pCmd->size = size;
 			pCmd->id = TIL_Cmd_Replace;
 			memcpy (pCmd->args, event->text, textlen + 1);
 			cmdlist = g_slist_append (cmdlist, pCmd);

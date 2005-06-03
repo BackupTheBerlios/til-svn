@@ -1,3 +1,4 @@
 SubDir TOP tests ;
 
 SubInclude TOP tests units ;
+SubInclude TOP tests plugins ;

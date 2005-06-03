@@ -50,6 +50,7 @@ typedef enum
 
 typedef struct
 {
+	size_t size;
 	TIL_CmdID id;
 	gchar args[];
 } TIL_Cmd;

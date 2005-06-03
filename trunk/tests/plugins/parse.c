@@ -269,7 +269,9 @@ cmdFromString (gchar * str)
 			}
 
 			/* allocate the command and init it with the args */
-			cmd = g_malloc (sizeof (TIL_Cmd) + sizeof (TIL_Cmd_Move_Args));
+			size_t size = sizeof (TIL_Cmd) + sizeof (TIL_Cmd_Move_Args);
+			cmd = g_malloc (size);
+			cmd->size = size;
 			memcpy (cmd->args, &args, sizeof (args));
 		}
 		break;
@@ -298,7 +300,9 @@ cmdFromString (gchar * str)
 			}
 
 			/* allocate the command and init it with the args */
-			cmd = g_malloc (sizeof (TIL_Cmd) + sizeof (TIL_Cmd_Select_Args));
+			size_t size = sizeof (TIL_Cmd) + sizeof (TIL_Cmd_Select_Args);
+			cmd = g_malloc (size);
+			cmd->size = size;
 			memcpy (cmd->args, &args, sizeof (args));
 		}
 		break;
@@ -312,6 +316,7 @@ cmdFromString (gchar * str)
 			goto out;
 
 		cmd = g_malloc (sizeof (TIL_Cmd));
+		cmd->size = sizeof (TIL_Cmd);
 		break;
 
 	case TIL_Cmd_Insert:
@@ -337,8 +342,10 @@ cmdFromString (gchar * str)
 					goto out;
 			}
 
-			cmd = g_malloc (sizeof(TIL_Cmd) + sizeof(TIL_Cmd_Insert_Args) +
-					(text != NULL ? (strlen (text) + 1) : 0));
+			size_t size = sizeof(TIL_Cmd) + sizeof(TIL_Cmd_Insert_Args) +
+					(text != NULL ? (strlen (text) + 1) : 0);
+			cmd = g_malloc (size);
+			cmd->size = size;
 			((TIL_Cmd_Insert_Args*) cmd->args)->clipboard = clipboard;
 			if (text != NULL)
 			{
@@ -391,6 +398,8 @@ getNextTestPair ()
 
 	while (g_io_channel_read_line_string (testFile, line, NULL, NULL) == G_IO_STATUS_NORMAL)
 	{
+		linecount++;
+
 		/* strip of comments and whitespace */
 		for (int i = 0; i < line->len; i++)
 		{
@@ -574,11 +583,13 @@ getNextTestPair ()
 			work = g_slist_next (work);
 		}
 		testPair->commands[numCmds] = NULL;
+		testPair->line = linecount;
 		goto succeeded;
 
 	  parseError:
 		printf ("error on line %d\n", linecount);
 		g_free (keyevent);
+		continue;
 
 	  succeeded:
 		g_strfreev (fields);
