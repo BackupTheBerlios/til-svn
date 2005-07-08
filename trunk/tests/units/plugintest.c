@@ -1,4 +1,4 @@
-/*  main.c
+/*  plugintest.c
  *
  *  This file is part of the Text Input Layer (TIL).
  *  Copyright (C) 2005 Pascal Maillard <pascalmaillard@web.de>
@@ -18,35 +18,27 @@
  *  the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  *  Boston, MA 02111-1307, USA.
  **/
-#include <glib.h>
+
 #include <CUnit/CUnit.h>
+#include <til.h>
+#include <glib.h>
+#include "../plugins/parse.h"
 
-extern void run_tests ();
-
-extern CU_SuiteInfo tests_til_suiteInfo;
-extern CU_SuiteInfo tests_plugin_modern_suiteInfo;
-extern CU_SuiteInfo tests_plugintest_suiteInfo;
-
-int
-main ()
+void
+parse_test ()
 {
-	/* init test registry */
-	CU_initialize_registry ();
+	CU_ASSERT (openTestFile ("tests/units/parsetest.txt"));
+	TestPair *tp = NULL;
 
-	/* register suites and tests */
-	CU_SuiteInfo suites[] = {
-		tests_til_suiteInfo,
-		tests_plugin_modern_suiteInfo,
-		tests_plugintest_suiteInfo,
-		CU_SUITE_INFO_NULL,
-	};
-	CU_register_suites (suites);
+	tp = getNextTestPair();
+	CU_ASSERT (tp == NULL);
 
-	/* run the tests */
-	run_tests ();
-
-	/* cleanup */
-	CU_cleanup_registry ();
-
-	return 0;
+	closeTestFile();
 }
+
+static CU_TestInfo tests[] = {
+	{"parsing test file", parse_test},
+	CU_TEST_INFO_NULL,
+};
+
+CU_SuiteInfo tests_plugintest_suiteInfo = { "Plugintest test suite", NULL, NULL, tests };

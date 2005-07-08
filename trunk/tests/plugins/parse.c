@@ -33,6 +33,8 @@ static TestPair *testPair = NULL;
 gboolean
 openTestFile (gchar * filename)
 {
+	line = g_string_new(NULL);
+
 	if (testFile != NULL)
 		return FALSE;
 
@@ -48,7 +50,8 @@ closeTestFile ()
 {
 	if (testFile != NULL)
 		g_io_channel_close (testFile);
-	g_string_free (line, FALSE);
+	if (line != NULL)
+		g_string_free (line, FALSE);
 	linecount = 0;
 }
 
@@ -76,6 +79,8 @@ keyToModifier (TIL_Keycode code)
 	case TIL_Key_Meta:
 		m = TIL_Mod_Meta;
 		break;
+	default:
+		break;
 	}
 	return m;
 }
@@ -95,6 +100,8 @@ keyToChar (TIL_Keycode code)
 	case TIL_Key_Return:
 	case TIL_Key_Enter:
 		c = '\n';
+		break;
+	default:
 		break;
 	}
 	return (gunichar) c;
@@ -116,7 +123,7 @@ typedef struct
 int
 map (const Mapping * m, gchar * str)
 {
-	int val;
+	int val = -1;
 	while (m->str != NULL)
 	{
 		if (g_str_has_prefix (str, m->str))
@@ -205,11 +212,9 @@ cmdFromString (gchar * str)
 
 	g_strstrip (str);
 	gchar **words = g_strsplit_set (str, " \t", -1);
-	TIL_CmdID id;
+	TIL_CmdID id = TIL_Cmd_Unknown;
 	if (words[0] != NULL)
 		id = (TIL_CmdID) map (cmdMap, words[0]);
-	if (id == TIL_Cmd_Unknown)
-		goto out;
 
 	switch (id)
 	{
@@ -370,6 +375,8 @@ cmdFromString (gchar * str)
 		break;
 	case TIL_Cmd_Status:
 		break;
+	case TIL_Cmd_Unknown:
+		goto out;
 	}
 	if (cmd != NULL)
 		cmd->id = id;
@@ -597,7 +604,6 @@ getNextTestPair ()
 		return testPair;
 	}							/* end while */
 
-  eof:
 	closeTestFile (testFile);
 	return NULL;
 }

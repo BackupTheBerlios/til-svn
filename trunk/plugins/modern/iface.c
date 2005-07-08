@@ -47,7 +47,8 @@ processEvent (TIL_View view, const TIL_Keyevent * event, TIL_Cmd *** pCmds)
 		gunichar c = g_utf8_get_char (event->text);
 		if (g_unichar_isprint (c))
 		{
-			size_t size = sizeof(TIL_Cmd) + strlen (event->text) + 1
+			int textlen = strlen (event->text);
+			size_t size = sizeof(TIL_Cmd) + textlen + 1;
 			pCmd = g_malloc (size);
 			pCmd->size = size;
 			pCmd->id = TIL_Cmd_Replace;

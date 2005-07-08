@@ -3,9 +3,11 @@ SubDir TOP tests units ;
 SubDirHdrs $(TILHDRS) ;
 SubDirHdrs $(TILINTHDRS) ;
 SubDirCcFlags $(GLIBCFLAGS) ;
-TESTSOURCES = main.c til.c plugin_modern.c ;
+TESTSOURCES = main.c til.c plugin_modern.c plugintest.c $(DOTDOT)$(SLASH)plugins$(SLASH)parse.c ;
 TESTOBJECTS = $(TESTSOURCES:S=$(SUFOBJ)) ;
 Objects console.c $(TESTSOURCES) ;
+
+Bulk tests$(SLASH)units : parsetest.txt ;
 
 MainFromObjects console : console.o $(TESTOBJECTS) ;
 LinkLibraries console : libtil ;
