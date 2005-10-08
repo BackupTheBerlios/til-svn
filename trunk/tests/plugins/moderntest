@@ -18,8 +18,25 @@ press	:: <PAGEDOWN>	::	:: move page screen
 press	:: <PAGEUP>	:: C	:: move page back
 press	:: <PAGEDOWN>	:: C	:: move page
 
+# entering text
+press	:: A		::	:: replace t A
+press	:: /		::	:: replace t /
+press	:: aoeruc	::	:: replace t aoeruc
+press	:: õ		::	:: replace t õ
+
+# deleting text
+press	:: <BACKSPACE>	::	:: select normal :: move col back :: delete :: select none
+press	:: <DELETE>	::	:: select normal :: move col :: delete :: select none
+
+# switching to overwrite mode
+press	:: <INSERT>	::	:: cursor block
+press	:: A		::	:: select normal :: move col :: replace t A :: select none
+press	:: <INSERT>	::	:: cursor line
+
 # selection
 press	:: <SHIFT>	::	:: select normal
-release	:: <SHIFT>	::	:: select none
+press	:: <SHIFT>	:: C	:: select block
+release	:: <SHIFT>	::	::
+
 
 # vim: ts=8
