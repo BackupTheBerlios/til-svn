@@ -25,41 +25,6 @@
 #include <string.h>
 #include <stdio.h>
 
-static GIOChannel *testFile = NULL;
-static GString *line = NULL;
-static int linecount = 0;
-static TestPair *testPair = NULL;
-
-gboolean
-openTestFile (gchar * filename)
-{
-	line = g_string_new(NULL);
-
-	if (testFile != NULL)
-		return FALSE;
-
-	testFile = g_io_channel_new_file (filename, "r", NULL);
-	if (testFile == NULL)
-		return FALSE;
-
-	return TRUE;
-}
-
-void
-closeTestFile ()
-{
-	if (testFile != NULL)
-		g_io_channel_close (testFile);
-	if (line != NULL)
-		g_string_free (line, FALSE);
-	linecount = 0;
-}
-
-TIL_Keycode
-unescapeKey (gchar * escaped)
-{
-	return TIL_Key_unknown;
-}
 
 gint
 keyToModifier (TIL_Keycode code)
@@ -182,6 +147,295 @@ unescapeText (gchar * str)
 	return res;
 }
 
+
+TIL_Keycode
+unescapeKey (gchar * escaped)
+{
+	Mapping keyMap[] = {
+		{"ESCAPE", TIL_Key_Escape},
+		{"TAB", TIL_Key_Tab},
+		{"BACKTAB", TIL_Key_BackTab},
+		{"BACKSPACE", TIL_Key_BackSpace},
+		{"RETURN", TIL_Key_Return},
+		{"ENTER", TIL_Key_Enter},
+		{"INSERT", TIL_Key_Insert},
+		{"DELETE", TIL_Key_Delete},
+		{"PAUSE", TIL_Key_Pause},
+		{"PRINT", TIL_Key_Print},
+		{"SYSREQ", TIL_Key_SysReq},
+		{"CLEAR", TIL_Key_Clear},
+		{"HOME", TIL_Key_Home},
+		{"END", TIL_Key_End},
+		{"LEFT", TIL_Key_Left},
+		{"UP", TIL_Key_Up},
+		{"RIGHT", TIL_Key_Right},
+		{"DOWN", TIL_Key_Down},
+		{"PRIOR", TIL_Key_Prior},
+		{"PAGEUP", TIL_Key_PageUp},
+		{"NEXT", TIL_Key_Next},
+		{"PAGEDOWN", TIL_Key_PageDown},
+		{"SHIFT", TIL_Key_Shift},
+		{"CONTROL", TIL_Key_Control},
+		{"META", TIL_Key_Meta},
+		{"ALT", TIL_Key_Alt},
+		{"CAPSLOCK", TIL_Key_CapsLock},
+		{"NUMLOCK", TIL_Key_NumLock},
+		{"SCROLLLOCK", TIL_Key_ScrollLock},
+		{"F1", TIL_Key_F1},
+		{"F2", TIL_Key_F2},
+		{"F3", TIL_Key_F3},
+		{"F4", TIL_Key_F4},
+		{"F5", TIL_Key_F5},
+		{"F6", TIL_Key_F6},
+		{"F7", TIL_Key_F7},
+		{"F8", TIL_Key_F8},
+		{"F9", TIL_Key_F9},
+		{"F10", TIL_Key_F10},
+		{"F11", TIL_Key_F11},
+		{"F12", TIL_Key_F12},
+		{"F13", TIL_Key_F13},
+		{"F14", TIL_Key_F14},
+		{"F15", TIL_Key_F15},
+		{"F16", TIL_Key_F16},
+		{"F17", TIL_Key_F17},
+		{"F18", TIL_Key_F18},
+		{"F19", TIL_Key_F19},
+		{"F20", TIL_Key_F20},
+		{"F21", TIL_Key_F21},
+		{"F22", TIL_Key_F22},
+		{"F23", TIL_Key_F23},
+		{"F24", TIL_Key_F24},
+		{"F25", TIL_Key_F25},
+		{"F26", TIL_Key_F26},
+		{"F27", TIL_Key_F27},
+		{"F28", TIL_Key_F28},
+		{"F29", TIL_Key_F29},
+		{"F30", TIL_Key_F30},
+		{"F31", TIL_Key_F31},
+		{"F32", TIL_Key_F32},
+		{"F33", TIL_Key_F33},
+		{"F34", TIL_Key_F34},
+		{"F35", TIL_Key_F35},
+		{"SUPER_L", TIL_Key_Super_L},
+		{"SUPER_R", TIL_Key_Super_R},
+		{"MENU", TIL_Key_Menu},
+		{"HYPER_L", TIL_Key_Hyper_L},
+		{"HYPER_R", TIL_Key_Hyper_R},
+		{"HELP", TIL_Key_Help},
+		{"DIRECTION_L", TIL_Key_Direction_L},
+		{"DIRECTION_R", TIL_Key_Direction_R},
+		{"SPACE", TIL_Key_Space},
+		{"ANY", TIL_Key_Any},
+		{"EXCLAM", TIL_Key_Exclam},
+		{"QUOTEDBL", TIL_Key_QuoteDbl},
+		{"NUMBERSIGN", TIL_Key_NumberSign},
+		{"DOLLAR", TIL_Key_Dollar},
+		{"PERCENT", TIL_Key_Percent},
+		{"AMPERSAND", TIL_Key_Ampersand},
+		{"APOSTROPHE", TIL_Key_Apostrophe},
+		{"PARENLEFT", TIL_Key_ParenLeft},
+		{"PARENRIGHT", TIL_Key_ParenRight},
+		{"ASTERISK", TIL_Key_Asterisk},
+		{"PLUS", TIL_Key_Plus},
+		{"COMMA", TIL_Key_Comma},
+		{"MINUS", TIL_Key_Minus},
+		{"PERIOD", TIL_Key_Period},
+		{"SLASH", TIL_Key_Slash},
+		{"0", TIL_Key_0},
+		{"1", TIL_Key_1},
+		{"2", TIL_Key_2},
+		{"3", TIL_Key_3},
+		{"4", TIL_Key_4},
+		{"5", TIL_Key_5},
+		{"6", TIL_Key_6},
+		{"7", TIL_Key_7},
+		{"8", TIL_Key_8},
+		{"9", TIL_Key_9},
+		{"COLON", TIL_Key_Colon},
+		{"SEMICOLON", TIL_Key_Semicolon},
+		{"LESS", TIL_Key_Less},
+		{"EQUAL", TIL_Key_Equal},
+		{"GREATER", TIL_Key_Greater},
+		{"QUESTION", TIL_Key_Question},
+		{"AT", TIL_Key_At},
+		{"A", TIL_Key_A},
+		{"B", TIL_Key_B},
+		{"C", TIL_Key_C},
+		{"D", TIL_Key_D},
+		{"E", TIL_Key_E},
+		{"F", TIL_Key_F},
+		{"G", TIL_Key_G},
+		{"H", TIL_Key_H},
+		{"I", TIL_Key_I},
+		{"J", TIL_Key_J},
+		{"K", TIL_Key_K},
+		{"L", TIL_Key_L},
+		{"M", TIL_Key_M},
+		{"N", TIL_Key_N},
+		{"O", TIL_Key_O},
+		{"P", TIL_Key_P},
+		{"Q", TIL_Key_Q},
+		{"R", TIL_Key_R},
+		{"S", TIL_Key_S},
+		{"T", TIL_Key_T},
+		{"U", TIL_Key_U},
+		{"V", TIL_Key_V},
+		{"W", TIL_Key_W},
+		{"X", TIL_Key_X},
+		{"Y", TIL_Key_Y},
+		{"Z", TIL_Key_Z},
+		{"BRACKETLEFT", TIL_Key_BracketLeft},
+		{"BACKSLASH", TIL_Key_Backslash},
+		{"BRACKETRIGHT", TIL_Key_BracketRight},
+		{"ASCIICIRCUM", TIL_Key_AsciiCircum},
+		{"UNDERSCORE", TIL_Key_Underscore},
+		{"QUOTELEFT", TIL_Key_QuoteLeft},
+		{"BRACELEFT", TIL_Key_BraceLeft},
+		{"BAR", TIL_Key_Bar},
+		{"BRACERIGHT", TIL_Key_BraceRight},
+		{"ASCIITILDE", TIL_Key_AsciiTilde},
+		{"NOBREAKSPACE", TIL_Key_nobreakspace},
+		{"EXCLAMDOWN", TIL_Key_exclamdown},
+		{"CENT", TIL_Key_cent},
+		{"STERLING", TIL_Key_sterling},
+		{"CURRENCY", TIL_Key_currency},
+		{"YEN", TIL_Key_yen},
+		{"BROKENBAR", TIL_Key_brokenbar},
+		{"SECTION", TIL_Key_section},
+		{"DIAERESIS", TIL_Key_diaeresis},
+		{"COPYRIGHT", TIL_Key_copyright},
+		{"ORDFEMININE", TIL_Key_ordfeminine},
+		{"GUILLEMOTLEFT", TIL_Key_guillemotleft},
+		{"NOTSIGN", TIL_Key_notsign},
+		{"HYPHEN", TIL_Key_hyphen},
+		{"REGISTERED", TIL_Key_registered},
+		{"MACRON", TIL_Key_macron},
+		{"DEGREE", TIL_Key_degree},
+		{"PLUSMINUS", TIL_Key_plusminus},
+		{"TWOSUPERIOR", TIL_Key_twosuperior},
+		{"THREESUPERIOR", TIL_Key_threesuperior},
+		{"ACUTE", TIL_Key_acute},
+		{"MU", TIL_Key_mu},
+		{"PARAGRAPH", TIL_Key_paragraph},
+		{"PERIODCENTERED", TIL_Key_periodcentered},
+		{"CEDILLA", TIL_Key_cedilla},
+		{"ONESUPERIOR", TIL_Key_onesuperior},
+		{"MASCULINE", TIL_Key_masculine},
+		{"GUILLEMOTRIGHT", TIL_Key_guillemotright},
+		{"ONEQUARTER", TIL_Key_onequarter},
+		{"ONEHALF", TIL_Key_onehalf},
+		{"THREEQUARTERS", TIL_Key_threequarters},
+		{"QUESTIONDOWN", TIL_Key_questiondown},
+		{"AGRAVE", TIL_Key_Agrave},
+		{"AACUTE", TIL_Key_Aacute},
+		{"ACIRCUMFLEX", TIL_Key_Acircumflex},
+		{"ATILDE", TIL_Key_Atilde},
+		{"ADIAERESIS", TIL_Key_Adiaeresis},
+		{"ARING", TIL_Key_Aring},
+		{"AE", TIL_Key_AE},
+		{"CCEDILLA", TIL_Key_Ccedilla},
+		{"EGRAVE", TIL_Key_Egrave},
+		{"EACUTE", TIL_Key_Eacute},
+		{"ECIRCUMFLEX", TIL_Key_Ecircumflex},
+		{"EDIAERESIS", TIL_Key_Ediaeresis},
+		{"IGRAVE", TIL_Key_Igrave},
+		{"IACUTE", TIL_Key_Iacute},
+		{"ICIRCUMFLEX", TIL_Key_Icircumflex},
+		{"IDIAERESIS", TIL_Key_Idiaeresis},
+		{"ETH", TIL_Key_ETH},
+		{"NTILDE", TIL_Key_Ntilde},
+		{"OGRAVE", TIL_Key_Ograve},
+		{"OACUTE", TIL_Key_Oacute},
+		{"OCIRCUMFLEX", TIL_Key_Ocircumflex},
+		{"OTILDE", TIL_Key_Otilde},
+		{"ODIAERESIS", TIL_Key_Odiaeresis},
+		{"MULTIPLY", TIL_Key_multiply},
+		{"OOBLIQUE", TIL_Key_Ooblique},
+		{"UGRAVE", TIL_Key_Ugrave},
+		{"UACUTE", TIL_Key_Uacute},
+		{"UCIRCUMFLEX", TIL_Key_Ucircumflex},
+		{"UDIAERESIS", TIL_Key_Udiaeresis},
+		{"YACUTE", TIL_Key_Yacute},
+		{"THORN", TIL_Key_THORN},
+		{"SSHARP", TIL_Key_ssharp},
+		{"AGRAVE", TIL_Key_agrave},
+		{"AACUTE", TIL_Key_aacute},
+		{"ACIRCUMFLEX", TIL_Key_acircumflex},
+		{"ATILDE", TIL_Key_atilde},
+		{"ADIAERESIS", TIL_Key_adiaeresis},
+		{"ARING", TIL_Key_aring},
+		{"AE", TIL_Key_ae},
+		{"CCEDILLA", TIL_Key_ccedilla},
+		{"EGRAVE", TIL_Key_egrave},
+		{"EACUTE", TIL_Key_eacute},
+		{"ECIRCUMFLEX", TIL_Key_ecircumflex},
+		{"EDIAERESIS", TIL_Key_ediaeresis},
+		{"IGRAVE", TIL_Key_igrave},
+		{"IACUTE", TIL_Key_iacute},
+		{"ICIRCUMFLEX", TIL_Key_icircumflex},
+		{"IDIAERESIS", TIL_Key_idiaeresis},
+		{"ETH", TIL_Key_eth},
+		{"NTILDE", TIL_Key_ntilde},
+		{"OGRAVE", TIL_Key_ograve},
+		{"OACUTE", TIL_Key_oacute},
+		{"OCIRCUMFLEX", TIL_Key_ocircumflex},
+		{"OTILDE", TIL_Key_otilde},
+		{"ODIAERESIS", TIL_Key_odiaeresis},
+		{"DIVISION", TIL_Key_division},
+		{"OSLASH", TIL_Key_oslash},
+		{"UGRAVE", TIL_Key_ugrave},
+		{"UACUTE", TIL_Key_uacute},
+		{"UCIRCUMFLEX", TIL_Key_ucircumflex},
+		{"UDIAERESIS", TIL_Key_udiaeresis},
+		{"YACUTE", TIL_Key_yacute},
+		{"THORN", TIL_Key_thorn},
+		{"YDIAERESIS", TIL_Key_ydiaeresis},
+		{"BACK", TIL_Key_Back},
+		{"FORWARD", TIL_Key_Forward},
+		{"STOP", TIL_Key_Stop},
+		{"REFRESH", TIL_Key_Refresh},
+		{"VOLUMEDOWN", TIL_Key_VolumeDown},
+		{"VOLUMEMUTE", TIL_Key_VolumeMute},
+		{"VOLUMEUP", TIL_Key_VolumeUp},
+		{"BASSBOOST", TIL_Key_BassBoost},
+		{"BASSUP", TIL_Key_BassUp},
+		{"BASSDOWN", TIL_Key_BassDown},
+		{"TREBLEUP", TIL_Key_TrebleUp},
+		{"TREBLEDOWN", TIL_Key_TrebleDown},
+		{"MEDIAPLAY", TIL_Key_MediaPlay},
+		{"MEDIASTOP", TIL_Key_MediaStop},
+		{"MEDIAPREV", TIL_Key_MediaPrev},
+		{"MEDIANEXT", TIL_Key_MediaNext},
+		{"MEDIARECORD", TIL_Key_MediaRecord},
+		{"HOMEPAGE", TIL_Key_HomePage},
+		{"FAVORITES", TIL_Key_Favorites},
+		{"SEARCH", TIL_Key_Search},
+		{"STANDBY", TIL_Key_Standby},
+		{"OPENURL", TIL_Key_OpenUrl},
+		{"LAUNCHMAIL", TIL_Key_LaunchMail},
+		{"LAUNCHMEDIA", TIL_Key_LaunchMedia},
+		{"LAUNCH0", TIL_Key_Launch0},
+		{"LAUNCH1", TIL_Key_Launch1},
+		{"LAUNCH2", TIL_Key_Launch2},
+		{"LAUNCH3", TIL_Key_Launch3},
+		{"LAUNCH4", TIL_Key_Launch4},
+		{"LAUNCH5", TIL_Key_Launch5},
+		{"LAUNCH6", TIL_Key_Launch6},
+		{"LAUNCH7", TIL_Key_Launch7},
+		{"LAUNCH8", TIL_Key_Launch8},
+		{"LAUNCH9", TIL_Key_Launch9},
+		{"LAUNCHA", TIL_Key_LaunchA},
+		{"LAUNCHB", TIL_Key_LaunchB},
+		{"LAUNCHC", TIL_Key_LaunchC},
+		{"LAUNCHD", TIL_Key_LaunchD},
+		{"LAUNCHE", TIL_Key_LaunchE},
+		{"LAUNCHF", TIL_Key_LaunchF},
+		{"MEDIALAST", TIL_Key_MediaLast},
+		{NULL, TIL_Key_unknown},
+	};
+
+	return (TIL_Keycode) map (keyMap, escaped);
+}
 	
 
 /* Converts the string representation of a command into it's internal representation, or
@@ -222,12 +476,15 @@ cmdFromString (gchar * str)
 		{
 			Mapping entityMap[] = {
 				{"row", TIL_Cmd_Move_Row},
+				{"line", TIL_Cmd_Move_Line},
 				{"col", TIL_Cmd_Move_Column},
 				{"char", TIL_Cmd_Move_Character},
 				{"word", TIL_Cmd_Move_Word},
 				{"sent", TIL_Cmd_Move_Sentence},
 				{"block", TIL_Cmd_Move_Block},
 				{"par", TIL_Cmd_Move_Paragraph},
+				{"page", TIL_Cmd_Move_Page},
+				{"doc", TIL_Cmd_Move_Doc},
 				{NULL, -1},
 			};
 			Mapping flagsMap[] = {
@@ -235,49 +492,49 @@ cmdFromString (gchar * str)
 				{"end", TIL_Cmd_Move_EndOf},
 				{"abs", TIL_Cmd_Move_Absolute},
 				{"nowrap", TIL_Cmd_Move_NoLineWrap},
-				{"virt", TIL_Cmd_Move_Virtual},
+				{"screen", TIL_Cmd_Move_Screen},
 				{NULL, 0},
 			};
 
-			if (words[1] == NULL)
+			int i=1;
+			TIL_Cmd_Move_Args args = { TIL_Cmd_Move_Row, 1, 0 };
+
+			if (words[i] == NULL)
 				goto out;
 
-			TIL_Cmd_Move_Args args = { TIL_Cmd_Move_Row, 1, 0 };
-			args.entity = (TIL_Cmd_Move_Entity) map (entityMap, words[1]);
-			if ((int) args.entity < 0)
+			/* try to read the entity count */
+			if (sscanf (words[i], "%d", &args.count) > 0)
+				i++;
+
+			if (words[i] == NULL)
 				goto out;
-			if (words[2] != NULL)
+				
+			args.entity = (TIL_Cmd_Move_Entity) map (entityMap, words[i]);
+			i++;
+
+			if (words[i] != NULL)
 			{
-				/* read the count and go out if it could not be read */
-				if (sscanf (words[2], "%u", &args.count) != 1)
-					goto out;
-				if (words[3] != NULL)
+				/* the flags */
+				gchar **flags = g_strsplit (words[i], "|", -1);
+				gboolean error = FALSE;
+				for (int j = 0; flags[j] != NULL; j++)
 				{
-					/* the flags */
-					gchar **flags = g_strsplit (words[3], "|", -1);
-					gboolean error = FALSE;
-					for (int i = 0; flags[i] != NULL; i++)
-					{
-						int flag = map (flagsMap, flags[i]);
-						if (flag == 0)
-							error = TRUE;
-						else
-							args.flags |= flag;
-					}
-					g_strfreev (flags);
-					if (error)
-						goto out;
-					/* if there are additional parameters, go out */
-					if (words[4] != NULL)
-						goto out;
+					int flag = map (flagsMap, flags[j]);
+					if (flag == 0)
+						error = TRUE;
+					else
+						args.flags |= flag;
 				}
+				g_strfreev (flags);
+				if (error)
+					goto out;
+				/* if there are additional parameters, go out */
+				if (words[i+1] != NULL)
+					goto out;
 			}
 
 			/* allocate the command and init it with the args */
-			size_t size = sizeof (TIL_Cmd) + sizeof (TIL_Cmd_Move_Args);
-			cmd = g_malloc (size);
-			cmd->size = size;
-			memcpy (cmd->args, &args, sizeof (args));
+			cmd = til_createCmd (id, &args, sizeof (args));
 		}
 		break;
 
@@ -305,10 +562,7 @@ cmdFromString (gchar * str)
 			}
 
 			/* allocate the command and init it with the args */
-			size_t size = sizeof (TIL_Cmd) + sizeof (TIL_Cmd_Select_Args);
-			cmd = g_malloc (size);
-			cmd->size = size;
-			memcpy (cmd->args, &args, sizeof (args));
+			cmd = til_createCmd (id, &args, sizeof (args));
 		}
 		break;
 
@@ -320,8 +574,7 @@ cmdFromString (gchar * str)
 		if (words[1] != NULL)
 			goto out;
 
-		cmd = g_malloc (sizeof (TIL_Cmd));
-		cmd->size = sizeof (TIL_Cmd);
+		cmd = til_createCmd (id, NULL, 0);
 		break;
 
 	case TIL_Cmd_Insert:
@@ -351,6 +604,7 @@ cmdFromString (gchar * str)
 					(text != NULL ? (strlen (text) + 1) : 0);
 			cmd = g_malloc (size);
 			cmd->size = size;
+			cmd->id = id;
 			((TIL_Cmd_Insert_Args*) cmd->args)->clipboard = clipboard;
 			if (text != NULL)
 			{
@@ -378,30 +632,23 @@ cmdFromString (gchar * str)
 	case TIL_Cmd_Unknown:
 		goto out;
 	}
-	if (cmd != NULL)
-		cmd->id = id;
 
   out:
 	g_strfreev (words);
 	return cmd;
 }
 
-TestPair *
-getNextTestPair ()
+GSList *
+parseTestFile (gchar * filename)
 {
+	/* open test file */
+	GIOChannel *testFile = g_io_channel_new_file (filename, "r", NULL);
 	if (testFile == NULL)
 		return NULL;
-	if (testPair != NULL)
-	{
-		g_free (testPair->keyevent);
-		for (TIL_Cmd *work = *testPair->commands; work != NULL; work++)
-		{
-			g_free (work);
-		}
-		g_strfreev ((gchar **) testPair->commands);
-		g_free (testPair);
-		testPair = NULL;
-	}
+
+	GSList *testPairs = NULL;
+	GString *line = g_string_new(NULL);
+	int linecount = 0;
 
 	while (g_io_channel_read_line_string (testFile, line, NULL, NULL) == G_IO_STATUS_NORMAL)
 	{
@@ -419,10 +666,17 @@ getNextTestPair ()
 		g_strstrip (line->str);
 
 		/* skip line if blank */
-		if (line->len == 0)
+		if (strlen (line->str) == 0)
 			continue;
 
-		TIL_Keyevent *keyevent = NULL, *keyevent2 = NULL;
+		/* initialize test pair */
+		TestPair *testPair = g_malloc (sizeof (TestPair));
+		testPair->linenr = linecount;
+		testPair->line = g_strdup (line->str);
+		testPair->keyevent = NULL;
+		testPair->commands = NULL;
+
+		TIL_Keyevent *keyevent = NULL;
 		gboolean hit = FALSE;
 		TIL_Keyevent_Type type;
 		gboolean autorep = FALSE;
@@ -542,7 +796,10 @@ getNextTestPair ()
 			case 'M':
 				modifiers |= TIL_Mod_Meta;
 				break;
+			default:
+				break;
 			}
+			i++;
 		}
 		g_strfreev (modv);
 
@@ -560,6 +817,7 @@ getNextTestPair ()
 		 * REMAINING FIELDS: COMMANDS
 		 */
 		GSList *cmds = NULL;
+		int numCmds = 0;
 		for (int i = 3; fields[i] != NULL; i++)
 		{
 			TIL_Cmd *cmd = cmdFromString (fields[i]);
@@ -573,14 +831,13 @@ getNextTestPair ()
 				}
 				goto parseError;
 			}
-			g_slist_append (cmds, cmd);
+			cmds = g_slist_append (cmds, cmd);
+			numCmds++;
 		}
-		int numCmds = i - 3;
 
 		/*
 		 * BUILD THE TEST PAIR
 		 */
-		testPair = g_malloc (sizeof (TestPair));
 		testPair->keyevent = keyevent;
 		testPair->commands = g_malloc (sizeof (TIL_Cmd *) * (numCmds + 1));
 		GSList *work = cmds;
@@ -590,20 +847,35 @@ getNextTestPair ()
 			work = g_slist_next (work);
 		}
 		testPair->commands[numCmds] = NULL;
-		testPair->line = linecount;
-		goto succeeded;
 
-	  parseError:
-		printf ("error on line %d\n", linecount);
-		g_free (keyevent);
-		continue;
-
-	  succeeded:
 		g_strfreev (fields);
 		g_slist_free (cmds);
-		return testPair;
+		testPairs = g_slist_append (testPairs, testPair);
+		continue;
+
+	  parseError:
+		g_free (keyevent);
+		testPairs = g_slist_append (testPairs, testPair);
 	}							/* end while */
 
-	closeTestFile (testFile);
-	return NULL;
+	/* cleanup */
+	g_io_channel_shutdown (testFile, FALSE, NULL);
+	g_io_channel_unref (testFile);
+	g_string_free (line, FALSE);
+
+	return testPairs;
+}
+
+void
+deleteTestPairs (GSList *testPairs)
+{
+	for (; testPairs != NULL; testPairs = g_slist_next (testPairs))
+	{
+		TestPair *tp = (TestPair *) testPairs->data;
+		g_free (tp->line);
+		g_free (tp->keyevent);
+		g_strfreev ((gchar **) tp->commands);
+		g_free (tp);
+		testPairs = g_slist_delete_link (testPairs, testPairs);
+	}
 }

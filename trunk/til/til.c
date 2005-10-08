@@ -41,3 +41,16 @@ til_cleanup ()
 	error_cleanup ();
 	return TRUE;
 }
+
+TIL_Cmd *
+til_createCmd (TIL_CmdID id, void * args, int size_of_args)
+{
+	/* allocate the command and init it with the args */
+	size_t size = sizeof (TIL_Cmd) + size_of_args;
+	TIL_Cmd *cmd = g_malloc (size);
+	cmd->size = size;
+	cmd->id = id;
+	memcpy (cmd->args, args, size_of_args);
+	return cmd;
+}
+

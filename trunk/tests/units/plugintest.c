@@ -27,13 +27,51 @@
 void
 parse_test ()
 {
-	CU_ASSERT (openTestFile ("tests/units/parsetest.txt"));
+	GSList *testPairs = parseTestFile ("tests/units/parsetest.txt");
+	CU_ASSERT_FATAL (g_slist_length (testPairs) == 2);
 	TestPair *tp = NULL;
+	GSList *work = testPairs;
 
-	tp = getNextTestPair();
-	CU_ASSERT (tp == NULL);
+	/* press	:: A	::		:: replace text A */
+	tp = work->data;
+	CU_ASSERT (tp != NULL);
+	if (tp != NULL)
+	{
+		CU_ASSERT (tp->linenr == 1);
+		CU_ASSERT (g_strcasecmp (tp->line,
+					"press\t:: A\t::\t:: replace text A") == 0);
+		CU_ASSERT (tp->keyevent != NULL);
+		CU_ASSERT (tp->keyevent->type == TIL_Event_Pressed);
+		CU_ASSERT (tp->keyevent->autorep == 0);
+		CU_ASSERT (tp->keyevent->modifiers == 0);
+		CU_ASSERT (g_strcasecmp (tp->keyevent->text, "A") == 0);
 
-	closeTestFile();
+		CU_ASSERT (tp->commands != NULL);
+		CU_ASSERT (tp->commands[0] != NULL);
+		CU_ASSERT (tp->commands[1] == NULL);
+		if (tp->commands[0] != NULL)
+		{
+			TIL_Cmd * cmd = tp->commands[0];
+			CU_ASSERT (cmd->id == TIL_Cmd_Replace);
+			TIL_Cmd_Replace_Args *args = (TIL_Cmd_Replace_Args*) cmd->args;
+			CU_ASSERT (args->clipboard == FALSE);
+			CU_ASSERT (g_strcasecmp (args->text, "A") == 0);
+		}
+	}
+
+	/* aolerch */
+	work = g_slist_next (work);
+	tp = work->data;
+	CU_ASSERT (tp != NULL);
+	if (tp != NULL)
+	{
+		CU_ASSERT (tp->linenr == 2);
+		CU_ASSERT (g_strcasecmp (tp->line, "aolerch") == 0);
+		CU_ASSERT (tp->keyevent == NULL);
+		CU_ASSERT (tp->commands == NULL);
+	}
+
+	deleteTestPairs (testPairs);
 }
 
 static CU_TestInfo tests[] = {

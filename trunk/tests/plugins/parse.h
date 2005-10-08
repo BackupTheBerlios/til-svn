@@ -26,13 +26,13 @@
 
 typedef struct
 {
+	int linenr;
+	gchar *line;
 	TIL_Keyevent *keyevent;	
 	TIL_Cmd **commands;
-	int line;
 } TestPair;
 
-gboolean openTestFile (gchar * filename);
-void closeTestFile ();
-TestPair * getNextTestPair ();
+GSList *parseTestFile (gchar * filename);
+void deleteTestPairs (GSList *tp);
 
 #endif

@@ -1,0 +1,25 @@
+# This is the test file for the "modern" plugin contained in the TIL package.
+
+# movement
+press	:: <UP>		::	:: move row back|screen
+press	:: <DOWN>	::	:: move row screen
+press	:: <LEFT>	::	:: move col back
+press	:: <RIGHT>	::	:: move col
+press	:: <UP>		:: C	:: move row back|screen
+press	:: <DOWN>	:: C	:: move row screen
+press	:: <LEFT>	:: C	:: move word back
+press	:: <RIGHT>	:: C	:: move word
+press	:: <HOME>	::	:: move line back|screen
+press	:: <END>	::	:: move line end|screen
+press	:: <HOME>	:: C	:: move doc back
+press	:: <END>	:: C	:: move doc end
+press	:: <PAGEUP>	::	:: move page back|screen
+press	:: <PAGEDOWN>	::	:: move page screen
+press	:: <PAGEUP>	:: C	:: move page back
+press	:: <PAGEDOWN>	:: C	:: move page
+
+# selection
+press	:: <SHIFT>	::	:: select normal
+release	:: <SHIFT>	::	:: select none
+
+# vim: ts=8

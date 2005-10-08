@@ -55,6 +55,7 @@ typedef struct
 	gchar args[];
 } TIL_Cmd;
 
+TIL_Cmd *til_createCmd (TIL_CmdID id, void * args, int size_of_args);
 
 /*
  * "move" command
@@ -63,19 +64,22 @@ typedef struct
 typedef enum
 {
 	TIL_Cmd_Move_Row,
+	TIL_Cmd_Move_Line,
 	TIL_Cmd_Move_Column,
 	TIL_Cmd_Move_Character,
 	TIL_Cmd_Move_Word,
 	TIL_Cmd_Move_Sentence,
 	TIL_Cmd_Move_Block,
 	TIL_Cmd_Move_Paragraph,
+	TIL_Cmd_Move_Page,
+	TIL_Cmd_Move_Doc,
 } TIL_Cmd_Move_Entity;
 
 #define TIL_Cmd_Move_Backwards    0x01
 #define TIL_Cmd_Move_EndOf        0x02
 #define TIL_Cmd_Move_Absolute     0x04
 #define TIL_Cmd_Move_NoLineWrap   0x08
-#define TIL_Cmd_Move_Virtual      0x10
+#define TIL_Cmd_Move_Screen       0x10
 
 typedef struct 
 {

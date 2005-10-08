@@ -47,7 +47,8 @@ plugin_cleanup ()
 {
 	if (!til_unloadAllPlugins ())
 		return FALSE;
-	g_hash_table_destroy (_pluginTable);
+	if (_pluginTable != NULL)
+		g_hash_table_destroy (_pluginTable);
 	return TRUE;
 }
 
@@ -279,6 +280,8 @@ closePluginHelperFunc (gpointer key, gpointer value, gpointer user_data)
 gboolean
 til_unloadAllPlugins ()
 {
+	if (_pluginTable == NULL)
+		return TRUE;
 	/* remove all the plugins from the hash table that could be unloaded and 
 	 * return TRUE if and only if all plugins could be unloaded */
 	guint tableSize = g_hash_table_size (_pluginTable);
