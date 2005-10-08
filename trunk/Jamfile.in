@@ -29,6 +29,7 @@ CUNITLINKLIBS = -lcunit ;
 CURSESLINKLIBS = -lncurses ;
 TILHDRS = $(TOP)$(SLASH)til$(SLASH)include ;
 TILINTHDRS = $(TOP)$(SLASH)til ;
+OPTIM = ;
 
 
 SubDir TOP ;
