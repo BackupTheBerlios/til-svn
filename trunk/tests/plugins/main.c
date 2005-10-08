@@ -129,7 +129,7 @@ main (int argc, char ** argv)
 
 errorout:
 	til_cleanup ();
-	printf ("FATAL ERROR: %s\nQuitting...", error);
+	printf ("FATAL ERROR: %s\nQuitting...\n", error);
 	free (error);
 	return 1;
 }
