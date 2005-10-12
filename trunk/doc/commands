@@ -25,7 +25,8 @@ change cursor:
 
 set selection:
 	mode:
-		- none, normal, line or block
+		- none, default, normal, line or block
+		(default: the application's default setting)
 
 	
 % Note: the commands marked with an "(S)" operate on the selected text
@@ -47,6 +48,11 @@ undo:
 	
 redo:
 	- number of levels to redo
+
+
+
+override:
+	- on/off
 
 indent (S):
 	- indentation count

@@ -25,18 +25,29 @@ press	:: aoeruc	::	:: replace t aoeruc
 press	:: õ		::	:: replace t õ
 
 # deleting text
-press	:: <BACKSPACE>	::	:: select normal :: move col back :: delete :: select none
-press	:: <DELETE>	::	:: select normal :: move col :: delete :: select none
+press	:: <BACKSPACE>	::	:: select :: move col back :: delete :: select none
+press	:: <DELETE>	::	:: select :: move col :: delete :: select none
+press	:: <BACKSPACE>	:: C	:: select :: move word back :: delete :: select none
+press	:: <DELETE>	:: C	:: select :: move word end :: delete :: select none
 
-# switching to overwrite mode
-press	:: <INSERT>	::	:: cursor block
-press	:: A		::	:: select normal :: move col :: replace t A :: select none
-press	:: <INSERT>	::	:: cursor line
+# switching to override mode
+press	:: <INSERT>	::	:: cursor block :: override on
+press	:: A		::	:: replace t A
+press	:: <INSERT>	::	:: cursor line :: override off
 
 # selection
-press	:: <SHIFT>	::	:: select normal
-press	:: <SHIFT>	:: C	:: select block
-release	:: <SHIFT>	::	::
+press	:: <RIGHT>	:: S	:: select :: move col
+press	:: <DOWN>	:: S	:: move row screen
+press	:: <LEFT>	::	:: select none :: move col back
+
+# selection and editing
+press	:: <RIGHT>	:: S,C	:: select :: move word
+press	:: <BACKSPACE>	::	:: delete :: select none
+press	:: <RIGHT>	:: S,C	:: select :: move word
+press	:: <DELETE>	::	:: delete :: select none
+press	:: <RIGHT>	:: S,C	:: select :: move word
+press	:: A		::	:: replace t A :: select none
+
 
 
 # vim: ts=8

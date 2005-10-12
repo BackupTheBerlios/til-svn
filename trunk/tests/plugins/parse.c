@@ -454,6 +454,7 @@ cmdFromString (gchar * str)
 		{"copy", TIL_Cmd_Copy},
 		{"undo", TIL_Cmd_Undo},
 		{"redo", TIL_Cmd_Redo},
+		{"override", TIL_Cmd_Override},
 		{"indent", TIL_Cmd_Indent},
 		{"complete", TIL_Cmd_Complete},
 		{"format", TIL_Cmd_Format},
@@ -539,18 +540,41 @@ cmdFromString (gchar * str)
 		break;
 
 	case TIL_Cmd_Cursor:
+		{
+			Mapping shapeMap[] = {
+				{"line", TIL_Cmd_Cursor_Line},
+				{"block", TIL_Cmd_Cursor_Block},
+				{NULL, -1},
+			};
+
+			if (words[1] == NULL)
+				goto out;
+
+			TIL_Cmd_Cursor_Args args;
+			args.shape = (TIL_Cmd_Cursor_Shape) map (shapeMap, words[1]);
+
+			if ((int) args.shape < 0)
+				goto out;
+			if (words[2] != NULL)
+				goto out;
+
+			/* allocate the command and init it with the args */
+			cmd = til_createCmd (id, &args, sizeof (args));
+		}
 		break;
+
 	case TIL_Cmd_Select:
 		{
 			Mapping modeMap[] = {
 				{"none", TIL_Cmd_Select_None},
+				{"def", TIL_Cmd_Select_Default},
 				{"norm", TIL_Cmd_Select_Normal},
 				{"line", TIL_Cmd_Select_Line},
 				{"block", TIL_Cmd_Select_Block},
 				{NULL, -1},
 			};
 
-			TIL_Cmd_Select_Args args = { TIL_Cmd_Select_Normal };
+			TIL_Cmd_Select_Args args = { TIL_Cmd_Select_Default };
 
 			if (words[1] != NULL)
 			{
@@ -619,6 +643,28 @@ cmdFromString (gchar * str)
 		break;
 	case TIL_Cmd_Redo:
 		break;
+	case TIL_Cmd_Override:
+		{
+			Mapping modeMap[] = {
+				{"on", 1},
+				{"off", 0},
+				{NULL, -1},
+			};
+
+			if (words[1] == NULL)
+				goto out;
+
+			int flag = map (modeMap, words[1]);
+			if (flag < 0)
+				goto out;
+			gboolean overrideOn = flag;
+			if (words[2] != NULL)
+				goto out;
+
+			/* allocate the command and init it with the args */
+			cmd = til_createCmd (id, &overrideOn, sizeof (gboolean));
+		}
+		break;
 	case TIL_Cmd_Indent:
 		break;
 	case TIL_Cmd_Complete:
@@ -677,7 +723,7 @@ parseTestFile (gchar * filename)
 		testPair->commands = NULL;
 
 		TIL_Keyevent *keyevent = NULL;
-		gboolean hit = FALSE;
+		/*gboolean hit = FALSE;*/
 		TIL_Keyevent_Type type;
 		gboolean autorep = FALSE;
 		gint modifiers = 0;
@@ -704,11 +750,11 @@ parseTestFile (gchar * filename)
 		{
 			type = TIL_Event_Released;
 		}
-		else if (g_ascii_strcasecmp (fields[0], "hit") == 0)
+		/*else if (g_ascii_strcasecmp (fields[0], "hit") == 0)
 		{
 			type = TIL_Event_Pressed;
 			hit = TRUE;
-		}
+		}*/
 		else
 		{
 			goto parseError;
@@ -818,21 +864,29 @@ parseTestFile (gchar * filename)
 		 */
 		GSList *cmds = NULL;
 		int numCmds = 0;
-		for (int i = 3; fields[i] != NULL; i++)
+		if (fields[3] != NULL)
 		{
-			TIL_Cmd *cmd = cmdFromString (fields[i]);
-			if (cmd == NULL)
+			/* ignore the last field if it consists only of white space */
+			g_strstrip (fields[3]);
+			if (*fields[3] != '\0')
 			{
-				GSList *work = cmds;
-				while (work != NULL)
+				for (int i = 3; fields[i] != NULL; i++)
 				{
-					g_free(work->data);
-					work = g_slist_next (work);
+					TIL_Cmd *cmd = cmdFromString (fields[i]);
+					if (cmd == NULL)
+					{
+						GSList *work = cmds;
+						while (work != NULL)
+						{
+							g_free(work->data);
+							work = g_slist_next (work);
+						}
+						goto parseError;
+					}
+					cmds = g_slist_append (cmds, cmd);
+					numCmds++;
 				}
-				goto parseError;
 			}
-			cmds = g_slist_append (cmds, cmd);
-			numCmds++;
 		}
 
 		/*

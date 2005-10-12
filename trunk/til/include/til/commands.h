@@ -39,6 +39,7 @@ typedef enum
 	TIL_Cmd_Copy,
 	TIL_Cmd_Undo,
 	TIL_Cmd_Redo,
+	TIL_Cmd_Override,
 	TIL_Cmd_Indent,
 	TIL_Cmd_Complete,
 	TIL_Cmd_Format,
@@ -93,7 +94,16 @@ typedef struct
  * "change cursor" command
  */
 
-/* TODO */
+typedef enum
+{
+	TIL_Cmd_Cursor_Line,
+	TIL_Cmd_Cursor_Block,
+} TIL_Cmd_Cursor_Shape;
+
+typedef struct
+{
+	TIL_Cmd_Cursor_Shape shape;
+} TIL_Cmd_Cursor_Args;
 
 /*
  * "set selection" command
@@ -102,6 +112,7 @@ typedef struct
 typedef enum
 {
 	TIL_Cmd_Select_None,
+	TIL_Cmd_Select_Default,
 	TIL_Cmd_Select_Normal,
 	TIL_Cmd_Select_Line,
 	TIL_Cmd_Select_Block,
@@ -152,6 +163,12 @@ typedef TIL_Cmd_Insert_Args TIL_Cmd_Replace_Args;
  */
 
 /* passes a "gint" telling how many levels to redo */
+
+/*
+ * "override" command
+ */
+
+/* passes a "gboolean" meaning override mode on or off */
 
 /*
  * "indent" command

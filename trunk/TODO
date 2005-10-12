@@ -9,9 +9,9 @@ library:
 - make the TIL use a "system directory" to store plugins
 
 plugins:
-- write the plugin test program -- IN PROGRESS
-- write tests for the "modern" plugin
-- complete the "modern" plugin
+- write the plugin test program -- ALMOST DONE (only basic commands)
+- write tests for the "modern" plugin -- DONE
+- complete the "modern" plugin -- DONE
 
 apps:
 - hack an example application that supports all the basic commands

@@ -1,13 +1,17 @@
 # @configure_input@
 
+PREFIX = "@prefix@" ;
+
 if $(UNIX) {
 	TOP = "@top_srcdir@" ;
+	LIBDIR = $(PREFIX)/lib ;
+	PLUGINDIR = $(PREFIX)/lib/til/plugins ;
+	SYSCONFDIR = /etc ;
 	PREFPLUGIN = lib ;
+	SUFPLUGIN = .so ;
 	if $(OS) != MACOSX {
-		SUFPLUGIN = .so ;
 		PLUGINLINKFLAGS = -shared ;
 	} else {
-		SUFPLUGIN = .so ;
 		PLUGINLINKFLAGS = -bundle ;
 	}
 } else if $(MINGW) {
@@ -17,6 +21,9 @@ if $(UNIX) {
 	RM              = del /f/q ;
 	RMDIR           = rmdir /s/q ;
 	TOP = "@win_top_srcdir@" ;
+	LIBDIR = $(PREFIX)/lib ;
+	PLUGINDIR = $(PREFIX)/plugins ;
+	SYSCONFDIR = $(PREFIX) ;
 	PREFPLUGIN = lib ;
 	SUFPLUGIN = .dll ;
 	PLUGINLINKFLAGS = -shared ;
