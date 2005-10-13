@@ -42,7 +42,8 @@ typedef struct _Plugin
 gboolean plugin_init ();
 gboolean plugin_cleanup ();
 
-const Plugin *lockPlugin (const gchar * pluginID);
-void unlockPlugin (const gchar * pluginID);
+GSList *getPluginsInDir (gchar * path);
+const Plugin *lockPlugin (TIL_const_PluginID id);
+void unlockPlugin (TIL_const_PluginID id);
 
 #endif

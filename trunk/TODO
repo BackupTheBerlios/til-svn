@@ -6,7 +6,7 @@ soon
 library:
 - specify basic commands and their arguments -- DONE
 - make all the functions use the error reporting system
-- make the TIL use a "system directory" to store plugins
+- make the TIL use a "system directory" to store plugins -- DONE
 
 plugins:
 - write the plugin test program -- ALMOST DONE (only basic commands)

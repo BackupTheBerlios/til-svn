@@ -31,17 +31,16 @@ main (int argc, char ** argv)
 	gchar *error = NULL;
 
 	if (argc != 3)
-		ERROR ("Syntax: plugintest PATH-TO-PLUGIN PATH-TO-TEST-FILE");
+		ERROR ("Syntax: plugintest PLUGIN-ID PATH-TO-TEST-FILE");
 
-	char *pluginpath = argv[1];
+	char *pluginID = argv[1];
 	char *testfile = argv[2];
 	/* initialize TIL */
 	if (!til_init())
 		ERROR ("Could not initialize TIL!");
 
 	/* load the plugin */
-	const gchar *pluginID = NULL;
-	if (!til_loadPlugin (pluginpath, &pluginID))
+	if (!til_loadPlugin (pluginID))
 		ERROR ("Could not load plugin!");
 
 	TIL_View view;

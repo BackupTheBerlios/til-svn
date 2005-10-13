@@ -26,7 +26,7 @@
 
 #define NUM_VIEWS 256
 
-static const gchar *_viewPluginMap[NUM_VIEWS] = {
+static TIL_const_PluginID _viewPluginMap[NUM_VIEWS] = {
 	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
 	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
 	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -47,32 +47,32 @@ static const gchar *_viewPluginMap[NUM_VIEWS] = {
 
 static TIL_View _nextView = 0;
 
-static const gchar *_defaultPlugin = NULL;
+static TIL_const_PluginID _defaultPlugin = NULL;
 
 gboolean
-til_registerView (TIL_View * pView, const gchar * pluginID)
+til_registerView (TIL_View * pView, TIL_const_PluginID id)
 {
 	if (pView == NULL)
 		return FALSE;
 	if (_nextView == -1)
 		return FALSE;
-	if (pluginID == NULL)
-		pluginID = _defaultPlugin;
-	if (pluginID == NULL)
+	if (id == NULL)
+		id = _defaultPlugin;
+	if (id == NULL)
 		return FALSE;
 
 	/* register the view in the plugin */
-	const Plugin *plugin = lockPlugin (pluginID);
+	const Plugin *plugin = lockPlugin (id);
 	if (plugin == NULL)
 		return FALSE;
 	gboolean added = plugin->addView (_nextView);
-	unlockPlugin (pluginID);
+	unlockPlugin (id);
 
 	if (!added)
 		return FALSE;
 
 	/* insert the view in the map */
-	_viewPluginMap[_nextView] = pluginID;
+	_viewPluginMap[_nextView] = id;
 
 	/* give the view to the user */
 	*pView = _nextView;
@@ -98,14 +98,14 @@ til_unregisterView (TIL_View view)
 		return FALSE;
 
 	/* instruct the plugin to remove the view */
-	const gchar *pluginID = _viewPluginMap[view];
-	if (pluginID == NULL)
+	TIL_const_PluginID id = _viewPluginMap[view];
+	if (id == NULL)
 		return FALSE;
-	const Plugin *plugin = lockPlugin (pluginID);
+	const Plugin *plugin = lockPlugin (id);
 	if (plugin == NULL)
 		return FALSE;
 	gboolean removed = plugin->removeView (view);
-	unlockPlugin (pluginID);
+	unlockPlugin (id);
 
 	if (!removed)
 		return FALSE;
@@ -135,22 +135,22 @@ til_unregisterAllViews ()
 }
 
 gboolean
-til_setDefaultPlugin (const gchar * pluginID)
+til_setDefaultPlugin (TIL_const_PluginID id)
 {
-	_defaultPlugin = pluginID;
+	_defaultPlugin = id;
 	return TRUE;
 }
 
 gboolean
-til_changePlugin (TIL_View view, const gchar * pluginID)
+til_changePlugin (TIL_View view, TIL_const_PluginID id)
 {
 	if (view < 0 || view >= NUM_VIEWS)
 		return FALSE;
-	if (pluginID == NULL)
-		pluginID = _defaultPlugin;
+	if (id == NULL)
+		id = _defaultPlugin;
 
 	/* remove from old plugin */
-	const gchar *fromID = _viewPluginMap[view];
+	TIL_const_PluginID fromID = _viewPluginMap[view];
 	const Plugin *plugin = NULL;
 	if (fromID != NULL)
 	{
@@ -165,11 +165,11 @@ til_changePlugin (TIL_View view, const gchar * pluginID)
 	}
 
 	/* add to new plugin */
-	plugin = lockPlugin (pluginID);
+	plugin = lockPlugin (id);
 	if (plugin == NULL)
 		return FALSE;
 	gboolean added = plugin->addView (view);
-	unlockPlugin (pluginID);
+	unlockPlugin (id);
 
 	if (!added)
 		return FALSE;
@@ -182,15 +182,15 @@ til_processEvent (TIL_View view, const TIL_Keyevent * event, TIL_Cmd *** pCmds)
 {
 	if (view < 0 || view >= NUM_VIEWS || pCmds == NULL)
 		return FALSE;
-	const gchar *pluginID = _viewPluginMap[view];
-	if (pluginID == NULL)
+	TIL_const_PluginID id = _viewPluginMap[view];
+	if (id == NULL)
 		return FALSE;
 
-	const Plugin *plugin = lockPlugin (pluginID);
+	const Plugin *plugin = lockPlugin (id);
 	if (plugin == NULL)
 		return FALSE;
 	gboolean success = plugin->processEvent (view, event, pCmds);
-	unlockPlugin (pluginID);
+	unlockPlugin (id);
 
 	if (!success)
 		return FALSE;

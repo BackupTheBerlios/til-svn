@@ -28,17 +28,17 @@ plugin_modern_init_tests ()
 {
 	if (!til_init ())
 		return 1;
-	const gchar *pluginID = NULL;
-	if (!til_loadPlugin ("plugins/modern/modern", &pluginID))
+	til_addPluginDirectory ("plugins/modern");
+	if (!til_loadPlugin ("til.modern"))
 		return 1;
-	til_setDefaultPlugin (pluginID);
+	til_setDefaultPlugin ("til.modern");
 	return 0;
 }
 
 int
 plugin_modern_cleanup_tests ()
 {
-	return til_cleanup ()? 0 : 1;
+	return til_cleanup () ? 0 : 1;
 }
 
 void
@@ -55,243 +55,8 @@ view_test ()
 	CU_ASSERT (til_unregisterAllViews ());
 }
 
-gint
-arrayLength (TIL_Cmd ** array)
-{
-	if (array == NULL)
-		return -1;
-	int len = 0;
-	while (array[len] != NULL)
-	{
-		len++;
-	}
-	return len;
-}
-
-/* nice hack to save typing, see below */
-#define IFEQUAL(actual,expected) CU_ASSERT_EQUAL (actual,expected); if (actual == expected)
-
-void
-processEvent_test ()
-{
-	/* register two views */
-	TIL_View view1, view2;
-	CU_ASSERT (til_registerView (&view1, NULL));
-	CU_ASSERT (til_registerView (&view2, NULL));
-
-#if 0
-	/* send some printable characters */
-	TIL_Keyevent *pEvent = g_malloc (sizeof (TIL_Keyevent) + 3);
-	pEvent->type = TIL_Event_Pressed;
-	pEvent->autorep = FALSE;
-	pEvent->modifiers = 0;
-	pEvent->keycode = TIL_Key_A;
-	pEvent->text[0] = 'A';
-	pEvent->text[1] = '\0';
-	TIL_Cmd **cmds = NULL;
-	CU_ASSERT (til_processEvent (view1, pEvent, &cmds));
-	IFEQUAL (arrayLength (cmds), 1)
-	{
-		CU_ASSERT (cmds[0]->id == TIL_Cmd_Replace);
-		CU_ASSERT (cmds[0]->args[0] == 'A' && cmds[0]->args[1] == '\0');
-	}
-	til_freeCmdArray (cmds);
-	cmds = NULL;
-
-	pEvent->autorep = TRUE;
-	CU_ASSERT (til_processEvent (view1, pEvent, &cmds));
-	IFEQUAL (arrayLength (cmds), 1)
-	{
-		CU_ASSERT (cmds[0]->id == TIL_Cmd_Replace);
-		CU_ASSERT (cmds[0]->args[0] == 'A' && cmds[0]->args[1] == '\0');
-	}
-	til_freeCmdArray (cmds);
-	cmds = NULL;
-	
-	/* character ä (a umlaut) */
-	pEvent->autorep = FALSE;
-	pEvent->text[0] = (gchar)0xc3;
-	pEvent->text[1] = (gchar)0xa4;
-	pEvent->text[2] = '\0';
-	CU_ASSERT (til_processEvent (view1, pEvent, &cmds));
-	IFEQUAL (arrayLength (cmds), 1)
-	{
-		CU_ASSERT (cmds[0]->id == TIL_Cmd_Replace);
-		CU_ASSERT (cmds[0]->args[0] == (gchar)0xc3 && cmds[0]->args[1] == (gchar)0xa4
-				&& cmds[0]->args[2] == '\0');
-	}
-	til_freeCmdArray (cmds);
-	cmds = NULL;
-
-	/* move cursor */
-	TIL_Cmd_Move_Args *args = NULL;
-	pEvent->text[0] = '\0';
-	pEvent->keycode = TIL_Key_Left;
-	CU_ASSERT (til_processEvent (view1, pEvent, &cmds));
-	IFEQUAL (arrayLength (cmds), 1)
-	{
-		CU_ASSERT (cmds[0]->id == TIL_Cmd_Move);
-		args = (TIL_Cmd_Move_Args *) cmds[0]->args;
-		CU_ASSERT_EQUAL (args->entity, TIL_Cmd_Move_Character);
-		CU_ASSERT_EQUAL (args->count, 1);
-		CU_ASSERT_EQUAL (args->flags, TIL_Cmd_Move_Backwards | TIL_Cmd_Move_Relative
-				| TIL_Cmd_Move_Linewrap);
-	}
-	til_freeCmdArray (cmds);
-	cmds = NULL;
-
-	pEvent->modifiers = TIL_Mod_Control;
-	CU_ASSERT (til_processEvent (view1, pEvent, &cmds));
-	IFEQUAL (arrayLength (cmds), 1)
-	{
-		CU_ASSERT (cmds[0]->id == TIL_Cmd_Move);
-		args = (TIL_Cmd_Move_Args *) cmds[0]->args;
-		CU_ASSERT_EQUAL (args->entity, TIL_Cmd_Move_Word);
-		CU_ASSERT_EQUAL (args->count, 1);
-		CU_ASSERT_EQUAL (args->flags, TIL_Cmd_Move_Backwards | TIL_Cmd_Move_Relative
-				| TIL_Cmd_Move_Linewrap);
-	}
-	til_freeCmdArray (cmds);
-	cmds = NULL;
-
-	pEvent->keycode = TIL_Key_Right;
-	pEvent->modifiers = 0;
-	CU_ASSERT (til_processEvent (view1, pEvent, &cmds));
-	IFEQUAL (arrayLength (cmds), 1)
-	{
-		CU_ASSERT (cmds[0]->id == TIL_Cmd_Move);
-		args = (TIL_Cmd_Move_Args *) cmds[0]->args;
-		CU_ASSERT_EQUAL (args->entity, TIL_Cmd_Move_Character);
-		CU_ASSERT_EQUAL (args->count, 1);
-		CU_ASSERT_EQUAL (args->flags, TIL_Cmd_Move_Relative | TIL_Cmd_Move_Linewrap);
-	}
-	til_freeCmdArray (cmds);
-	cmds = NULL;
-
-	pEvent->modifiers = TIL_Mod_Control;
-	CU_ASSERT (til_processEvent (view1, pEvent, &cmds));
-	IFEQUAL (arrayLength (cmds), 1)
-	{
-		CU_ASSERT (cmds[0]->id == TIL_Cmd_Move);
-		args = (TIL_Cmd_Move_Args *) cmds[0]->args;
-		CU_ASSERT_EQUAL (args->entity, TIL_Cmd_Move_Word);
-		CU_ASSERT_EQUAL (args->count, 1);
-		CU_ASSERT_EQUAL (args->flags, TIL_Cmd_Move_Relative | TIL_Cmd_Move_Linewrap);
-	}
-	til_freeCmdArray (cmds);
-	cmds = NULL;
-
-	pEvent->keycode = TIL_Key_Up;
-	pEvent->modifiers = 0;
-	CU_ASSERT (til_processEvent (view1, pEvent, &cmds));
-	IFEQUAL (arrayLength (cmds), 1)
-	{
-		CU_ASSERT (cmds[0]->id == TIL_Cmd_Move);
-		args = (TIL_Cmd_Move_Args *) cmds[0]->args;
-		CU_ASSERT_EQUAL (args->entity, TIL_Cmd_Move_Row);
-		CU_ASSERT_EQUAL (args->count, 1);
-		CU_ASSERT_EQUAL (args->flags, TIL_Cmd_Move_Backwards | TIL_Cmd_Move_Relative
-				| TIL_Cmd_Move_Virtual);
-	}
-	til_freeCmdArray (cmds);
-	cmds = NULL;
-
-	pEvent->keycode = TIL_Key_Down;
-	CU_ASSERT (til_processEvent (view1, pEvent, &cmds));
-	IFEQUAL (arrayLength (cmds), 1)
-	{
-		CU_ASSERT_EQUAL (cmds[0]->id, TIL_Cmd_Move);
-		args = (TIL_Cmd_Move_Args *) cmds[0]->args;
-		CU_ASSERT_EQUAL (args->entity, TIL_Cmd_Move_Row);
-		CU_ASSERT_EQUAL (args->count, 1);
-		CU_ASSERT_EQUAL (args->flags, TIL_Cmd_Move_Relative | TIL_Cmd_Move_Virtual);
-	}
-	til_freeCmdArray (cmds);
-	cmds = NULL;
-
-	/* delete and backspace */
-	pEvent->keycode = TIL_Key_Delete;
-	CU_ASSERT (til_processEvent (view1, pEvent, &cmds));
-	IFEQUAL (arrayLength (cmds), 3)
-	{
-		CU_ASSERT_EQUAL (cmds[0]->id, TIL_Cmd_Select);
-		CU_ASSERT_EQUAL (* (TIL_Cmd_Select_Modes *) cmds[0]->args, TIL_Cmd_Select_Normal)
-
-		CU_ASSERT_EQUAL (cmds[1]->id, TIL_Cmd_Move);
-		args = (TIL_Cmd_Move_Args *) cmds[1]->args;
-		CU_ASSERT_EQUAL (args->entity, TIL_Cmd_Move_Character);
-		CU_ASSERT_EQUAL (args->count, 1);
-		CU_ASSERT_EQUAL (args->flags, TIL_Cmd_Move_Relative | TIL_Cmd_Move_Linewrap);
-
-		CU_ASSERT_EQUAL (cmds[2]->id, TIL_Cmd_Delete);
-	}
-	til_freeCmdArray (cmds);
-	cmds = NULL;
-
-	pEvent->modifiers = TIL_Mod_Control;
-	CU_ASSERT (til_processEvent (view1, pEvent, &cmds));
-	IFEQUAL (arrayLength (cmds), 3)
-	{
-		CU_ASSERT_EQUAL (cmds[0]->id, TIL_Cmd_Select);
-		CU_ASSERT_EQUAL (* (TIL_Cmd_Select_Modes *) cmds[0]->args, TIL_Cmd_Select_Normal)
-
-		CU_ASSERT_EQUAL (cmds[1]->id, TIL_Cmd_Move);
-		args = (TIL_Cmd_Move_Args *) cmds[1]->args;
-		CU_ASSERT_EQUAL (args->entity, TIL_Cmd_Move_Word);
-		CU_ASSERT_EQUAL (args->count, 1);
-		CU_ASSERT_EQUAL (args->flags, TIL_Cmd_Move_Relative | TIL_Cmd_Move_Linewrap);
-
-		CU_ASSERT_EQUAL (cmds[2]->id, TIL_Cmd_Delete);
-	}
-	til_freeCmdArray (cmds);
-	cmds = NULL;
-
-	pEvent->keycode = TIL_Key_Backspace;
-	pEvent->modifiers = 0;
-	CU_ASSERT (til_processEvent (view1, pEvent, &cmds));
-	IFEQUAL (arrayLength (cmds), 3)
-	{
-		CU_ASSERT_EQUAL (cmds[0]->id, TIL_Cmd_Select);
-		CU_ASSERT_EQUAL (* (TIL_Cmd_Select_Modes *) cmds[0]->args, TIL_Cmd_Select_Normal)
-
-		CU_ASSERT_EQUAL (cmds[1]->id, TIL_Cmd_Move);
-		args = (TIL_Cmd_Move_Args *) cmds[1]->args;
-		CU_ASSERT_EQUAL (args->entity, TIL_Cmd_Move_Character);
-		CU_ASSERT_EQUAL (args->count, 1);
-		CU_ASSERT_EQUAL (args->flags, TIL_Cmd_Move_Backwards | TIL_Cmd_Move_Relative
-				| TIL_Cmd_Move_Linewrap);
-
-		CU_ASSERT_EQUAL (cmds[2]->id, TIL_Cmd_Delete);
-	}
-	til_freeCmdArray (cmds);
-	cmds = NULL;
-
-	pEvent->modifiers = TIL_Mod_Control;
-	CU_ASSERT (til_processEvent (view1, pEvent, &cmds));
-	IFEQUAL (arrayLength (cmds), 3)
-	{
-		CU_ASSERT_EQUAL (cmds[0]->id, TIL_Cmd_Select);
-		CU_ASSERT_EQUAL (* (TIL_Cmd_Select_Modes *) cmds[0]->args, TIL_Cmd_Select_Normal)
-
-		CU_ASSERT_EQUAL (cmds[1]->id, TIL_Cmd_Move);
-		args = (TIL_Cmd_Move_Args *) cmds[1]->args;
-		CU_ASSERT_EQUAL (args->entity, TIL_Cmd_Move_Word);
-		CU_ASSERT_EQUAL (args->count, 1);
-		CU_ASSERT_EQUAL (args->flags, TIL_Cmd_Move_Backwards | TIL_Cmd_Move_Relative
-				| TIL_Cmd_Move_Linewrap);
-
-		CU_ASSERT_EQUAL (cmds[2]->id, TIL_Cmd_Delete);
-	}
-	til_freeCmdArray (cmds);
-	cmds = NULL;
-#endif /* if 0 */
-
-	til_unregisterAllViews ();
-}
-
 static CU_TestInfo tests[] = {
 	{"manage views", view_test},
-	{"process events", processEvent_test},
 	CU_TEST_INFO_NULL,
 };
 

@@ -26,7 +26,8 @@
 
 #include "plugin.h"
 
-static GHashTable *_pluginTable = NULL;
+static GHashTable *_loadedPluginTable = NULL;
+static GSList *_pluginDirs = NULL;
 
 void
 destroyPlugin (void *p)
@@ -35,35 +36,17 @@ destroyPlugin (void *p)
 	g_free (plugin);
 }
 
-gboolean
-plugin_init ()
+gint
+pluginCmp (const GHashTable *plugin, TIL_const_PluginID id)
 {
-	_pluginTable = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
-	return _pluginTable != NULL;
+	return strcmp (g_hash_table_lookup ((GHashTable *)plugin, "id"), id);
 }
 
-gboolean
-plugin_cleanup ()
-{
-	if (!til_unloadAllPlugins ())
-		return FALSE;
-	if (_pluginTable != NULL)
-		g_hash_table_destroy (_pluginTable);
-	return TRUE;
-}
-
-gchar **
-til_getAvailableSysPlugins ()
-{
-	return g_malloc0 (sizeof (gchar *));
-}
-
-gchar **
-til_getPluginsInDir (gchar * path)
+GSList *
+getPluginsInDir (gchar * path)
 {
 	GSList *filelist = NULL;
 	int count = 0;
-	gchar **array = NULL;
 
 	/* open the directory */
 	GDir *dir = NULL;
@@ -92,7 +75,8 @@ til_getPluginsInDir (gchar * path)
 					{
 						/* add the filename to the list (without suffix) */
 						gsize n = strlen (filename) - strlen ("." TIL_PLUGIN_SUFFIX);
-						filelist = g_slist_append (filelist, g_strndup (filename, n));
+						filename[n] = '\0';
+						filelist = g_slist_append (filelist, g_build_filename (path, filename, NULL));
 						count++;
 					}
 					g_free (filename);
@@ -105,23 +89,11 @@ til_getPluginsInDir (gchar * path)
 	}
 	g_free (syspath);
 
-	/* copy the filenames to the array */
-	array = g_malloc (sizeof (gchar *) * (count + 1));
-	GSList *work = filelist;
-	int i = 0;
-	while (work)
-	{
-		array[i++] = work->data;
-		work = g_slist_next (work);
-	}
-	array[i] = NULL;
-	g_slist_free (filelist);
-
-	return array;
+	return filelist;
 }
 
 GHashTable *
-til_readPluginInfo (gchar * filename)
+readPluginInfo (gchar * filename)
 {
 	if (filename == NULL)
 		return NULL;
@@ -165,83 +137,223 @@ til_readPluginInfo (gchar * filename)
 	return pi;
 }
 
-gboolean
-til_loadPlugin (gchar * filename, const gchar ** pPluginID)
+void
+destroyPluginInfoList (GSList *list)
 {
-	if (filename == NULL || pPluginID == NULL)
+	for (; list != NULL; list = g_slist_delete_link (list, list))
+		til_destroyPluginInfo (list->data);
+}
+
+/* PUBLIC FUNCTIONS */
+
+gboolean
+plugin_init ()
+{
+	_loadedPluginTable = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+	return _loadedPluginTable != NULL;
+}
+
+gboolean
+plugin_cleanup ()
+{
+	if (!til_unloadAllPlugins ())
 		return FALSE;
-	gboolean freefilename = FALSE;
-	gboolean success = FALSE;
-	/* retrieve plugin information */
-	GHashTable *pi = til_readPluginInfo (filename);
-	if (pi == NULL)
-		return FALSE;
-	gchar *pluginID = g_hash_table_lookup (pi, "id");
-	if (pluginID != NULL)
+	if (_loadedPluginTable != NULL)
+		g_hash_table_destroy (_loadedPluginTable);
+	for (; _pluginDirs != NULL; _pluginDirs = g_slist_delete_link (_pluginDirs, _pluginDirs))
+		g_free (_pluginDirs->data);
+	return TRUE;
+}
+
+void
+til_addPluginDirectory (const gchar * directory)
+{
+	GSList *elem = g_slist_find_custom (_pluginDirs, directory, (GCompareFunc) strcmp);
+	if (elem == NULL)
+		_pluginDirs = g_slist_append (_pluginDirs, g_strdup (directory));
+}
+
+void
+til_removePluginDirectory (const gchar * directory)
+{
+	GSList *elem = g_slist_find_custom (_pluginDirs, directory, (GCompareFunc) strcmp);
+	if (elem != NULL)
 	{
-		/* check that the plugin hasn't been loaded yet */
-		if (g_hash_table_lookup (_pluginTable, pluginID) == NULL)
+		g_free (elem->data);
+		_pluginDirs = g_slist_delete_link (_pluginDirs, elem);
+	}
+}
+
+#ifdef G_OS_UNIX
+#define PATH_SEP ":"
+#elif defined G_OS_WIN32
+#define PATH_SEP ";"
+#endif
+
+GSList *
+til_getAvailablePlugins ()
+{
+	GSList *pluginFiles = NULL;
+	gchar **dirs = NULL;
+
+	/* collect the available plugin files */
+	
+	/* 1.: The environment variable TIL_PLUGIN_DIRS */
+	const gchar *envvar = g_getenv ("TIL_PLUGIN_DIRS");
+	if (envvar != NULL)
+	{
+		dirs = g_strsplit (envvar, PATH_SEP, 0);
+		for (gchar **dir = dirs; *dir != NULL; dir++)
+			pluginFiles = g_slist_concat (pluginFiles, getPluginsInDir (*dir));
+		g_strfreev (dirs);
+	}
+
+	/* 2.: The file .til.conf in user's configuration directory */
+	gchar *filepath = g_build_filename (g_get_user_config_dir (), ".til.conf", NULL);
+	GIOChannel *file = g_io_channel_new_file (filepath, "r", NULL);
+	g_free (filepath);
+	if (file != NULL)
+	{
+		gchar *line = NULL;
+		g_io_channel_read_line (file, &line, NULL, NULL, NULL);
+		g_strstrip (line);
+		dirs = g_strsplit (line, PATH_SEP, 0);
+		for (gchar **dir = dirs; *dir != NULL; dir++)
+			pluginFiles = g_slist_concat (pluginFiles, getPluginsInDir (*dir));
+		g_strfreev (dirs);
+		g_free (line);
+		g_io_channel_close (file);
+	}
+
+	/* 3.: The directories in _pluginDirs */
+	for (GSList *dir = _pluginDirs; dir != NULL; dir = g_slist_next (dir))
+		pluginFiles = g_slist_concat (pluginFiles, getPluginsInDir (dir->data));
+
+	/* 4.: The directories from the system's configuration */
+#ifdef G_OS_UNIX
+	filepath = g_build_filename (SYSCONFDIR, "til.conf", NULL);
+	file = g_io_channel_new_file (filepath, "r", NULL);
+	g_free (filepath);
+	if (file != NULL)
+	{
+		gchar *line = NULL;
+		g_io_channel_read_line (file, &line, NULL, NULL, NULL);
+		g_strstrip (line);
+		dirs = g_strsplit (line, PATH_SEP, 0);
+		for (gchar **dir = dirs; *dir != NULL; dir++)
+			pluginFiles = g_slist_concat (pluginFiles, getPluginsInDir (*dir));
+		g_strfreev (dirs);
+		g_free (line);
+		g_io_channel_close (file);
+	}
+#endif
+
+	/* 5.: The default directories */
+	pluginFiles = g_slist_concat (pluginFiles, getPluginsInDir (PLUGINDIR));
+
+
+	/* store the information about unique plugins in a list */
+	GSList *ids = NULL, *infos = NULL;
+	for (GSList *work = pluginFiles; work != NULL; work = g_slist_next (work))
+	{
+		GHashTable *info = readPluginInfo (work->data);
+		if (info != NULL)
 		{
-			/* load the library module */
-			if (g_str_has_suffix (filename, "." TIL_PLUGIN_SUFFIX))
+			TIL_PluginID id = g_hash_table_lookup (info, "id");
+			if (id != NULL && g_slist_find_custom (ids, id, (GCompareFunc) strcmp) == NULL)
 			{
-				gsize n = strlen (filename) - strlen ("." TIL_PLUGIN_SUFFIX);
-				filename = g_strndup (filename, n);
-				freefilename = TRUE;
+				/* add the file name to the info */
+				g_hash_table_insert (info, g_strdup ("__filename__"), g_strdup (work->data));
+				ids = g_slist_append (ids, id);
+				infos = g_slist_append (infos, info);
 			}
-			gchar *sysfilename = g_filename_from_utf8 (filename, -1, NULL, NULL, NULL);
-			gchar *sysbasename = g_path_get_basename (sysfilename);
-			gchar *sysdirname = g_path_get_dirname (sysfilename);
-			gchar *sysmodulepath = g_module_build_path (sysdirname, sysbasename);
-			GModule *module = g_module_open (sysmodulepath,
-											 G_MODULE_BIND_LAZY | G_MODULE_BIND_LOCAL);
-			if (module != NULL)
-			{
-				Plugin *plugin = g_malloc (sizeof (Plugin));
-				/* load the necessary symbols */
-				gboolean symsOk = TRUE;
-				if (symsOk)
-					symsOk =
-						g_module_symbol (module, "addView", (gpointer *) & plugin->addView);
-				if (symsOk)
-					symsOk =
-						g_module_symbol (module, "removeView",
-										 (gpointer *) & plugin->removeView);
-				if (symsOk)
-					symsOk =
-						g_module_symbol (module, "processEvent",
-										 (gpointer *) & plugin->processEvent);
-
-				if (symsOk)
-				{
-					/* insert the plugin in the list of the loaded plugins */
-					plugin->module = module;
-					pluginID = g_strdup (pluginID);
-					g_hash_table_insert (_pluginTable, pluginID, plugin);
-
-					/* present the plugin id to the user */
-					*pPluginID = pluginID;
-
-					/* indicate success */
-					success = TRUE;
-				}
-				else
-				{
-					g_module_close (module);
-					g_free (plugin);
-				}
-			}
-			g_free (sysfilename);
-			g_free (sysbasename);
-			g_free (sysdirname);
-			g_free (sysmodulepath);
 		}
+		g_free (work->data);
+	}
+	g_slist_free (ids);
+	g_slist_free (pluginFiles);
+
+	return infos;
+}
+
+GHashTable *
+til_getPluginInfo (TIL_const_PluginID id)
+{
+	GSList *plugins = til_getAvailablePlugins ();
+	GSList *p = g_slist_find_custom (plugins, id, (GCompareFunc) pluginCmp);
+	if (p == NULL)
+		return NULL;
+	GHashTable *info = p->data;
+	plugins = g_slist_delete_link (plugins, p);
+	destroyPluginInfoList (plugins);
+		
+	return info;
+}
+
+gboolean
+til_loadPlugin (TIL_const_PluginID id)
+{
+	/* check that the plugin hasn't been loaded yet */
+	if (id == NULL || g_hash_table_lookup (_loadedPluginTable, id) != NULL)
+		return FALSE;
+
+	gboolean success = FALSE;
+
+	/* find plugin and retrieve its information */
+	GSList *plugins = til_getAvailablePlugins ();
+	GSList *p = g_slist_find_custom (plugins, id, (GCompareFunc) pluginCmp);
+	gchar *filename = NULL;
+	if (p != NULL)
+	{
+		filename = g_hash_table_lookup (p->data, "__filename__");
+
+		/* load the library module */
+		TIL_PluginID sysfilename = g_filename_from_utf8 (filename, -1, NULL, NULL, NULL);
+		TIL_PluginID sysbasename = g_path_get_basename (sysfilename);
+		TIL_PluginID sysdirname = g_path_get_dirname (sysfilename);
+		TIL_PluginID sysmodulepath = g_module_build_path (sysdirname, sysbasename);
+		GModule *module = g_module_open (sysmodulepath,
+				G_MODULE_BIND_LAZY | G_MODULE_BIND_LOCAL);
+		if (module != NULL)
+		{
+			Plugin *plugin = g_malloc (sizeof (Plugin));
+			/* load the necessary symbols */
+			gboolean symsOk = TRUE;
+			if (symsOk)
+				symsOk =
+					g_module_symbol (module, "addView", (gpointer *) & plugin->addView);
+			if (symsOk)
+				symsOk =
+					g_module_symbol (module, "removeView",
+							(gpointer *) & plugin->removeView);
+			if (symsOk)
+				symsOk =
+					g_module_symbol (module, "processEvent",
+							(gpointer *) & plugin->processEvent);
+
+			if (symsOk)
+			{
+				/* insert the plugin in the list of the loaded plugins */
+				plugin->module = module;
+				g_hash_table_insert (_loadedPluginTable, g_strdup (id), plugin);
+
+				/* indicate success */
+				success = TRUE;
+			}
+			else
+			{
+				g_module_close (module);
+				g_free (plugin);
+			}
+		}
+		g_free (sysfilename);
+		g_free (sysbasename);
+		g_free (sysdirname);
+		g_free (sysmodulepath);
 	}
 
 	/* clean up */
-	til_destroyPluginInfo (pi);
-	if (freefilename)
-		g_free (filename);
+	destroyPluginInfoList (plugins);
 
 	return success;
 }
@@ -255,16 +367,16 @@ closePlugin (Plugin * plugin)
 }
 
 gboolean
-til_unloadPlugin (const gchar * pluginID)
+til_unloadPlugin (TIL_const_PluginID id)
 {
-	if (pluginID == NULL)
+	if (id == NULL)
 		return FALSE;
-	Plugin *plugin = g_hash_table_lookup (_pluginTable, pluginID);
+	Plugin *plugin = g_hash_table_lookup (_loadedPluginTable, id);
 	if (plugin == NULL)
 		return FALSE;
 	if (closePlugin (plugin))
 	{
-		g_hash_table_remove (_pluginTable, pluginID);
+		g_hash_table_remove (_loadedPluginTable, id);
 		return TRUE;
 	}
 	else
@@ -280,41 +392,41 @@ closePluginHelperFunc (gpointer key, gpointer value, gpointer user_data)
 gboolean
 til_unloadAllPlugins ()
 {
-	if (_pluginTable == NULL)
+	if (_loadedPluginTable == NULL)
 		return TRUE;
 	/* remove all the plugins from the hash table that could be unloaded and 
 	 * return TRUE if and only if all plugins could be unloaded */
-	guint tableSize = g_hash_table_size (_pluginTable);
-	return tableSize == g_hash_table_foreach_remove (_pluginTable, closePluginHelperFunc, NULL);
+	guint tableSize = g_hash_table_size (_loadedPluginTable);
+	return tableSize == g_hash_table_foreach_remove (_loadedPluginTable, closePluginHelperFunc, NULL);
 }
 
 void
 addKeyToArray (gpointer key, gpointer value, gpointer pArray)
 {
-	gchar ***pWork = pArray;
+	TIL_PluginID **pWork = pArray;
 	**pWork = key;
 	(*pWork)++;
 }
 
-const gchar **
+TIL_const_PluginID *
 til_getLoadedPlugins ()
 {
-/*	if( _pluginTable == NULL )
+/*	if( _loadedPluginTable == NULL )
 		return NULL;*/
-	gchar **ids = g_malloc (sizeof (gchar *) * (g_hash_table_size (_pluginTable) + 1));
-	gchar **work = ids;
-	g_hash_table_foreach (_pluginTable, addKeyToArray, &work);
+	TIL_PluginID *ids = g_malloc (sizeof (TIL_PluginID) * (g_hash_table_size (_loadedPluginTable) + 1));
+	TIL_PluginID *work = ids;
+	g_hash_table_foreach (_loadedPluginTable, addKeyToArray, &work);
 	*work = NULL;
-	return (const gchar **) ids;
+	return (TIL_const_PluginID *) ids;
 }
 
 const Plugin *
-lockPlugin (const gchar * pluginID)
+lockPlugin (TIL_const_PluginID pluginID)
 {
-	return g_hash_table_lookup (_pluginTable, pluginID);
+	return g_hash_table_lookup (_loadedPluginTable, pluginID);
 }
 
 void
-unlockPlugin (const gchar * pluginID)
+unlockPlugin (TIL_const_PluginID pluginID)
 {
 }

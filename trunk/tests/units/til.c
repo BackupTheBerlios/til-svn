@@ -96,63 +96,95 @@ isDummyPlugin (const GHashTable * pi)
 	CU_ASSERT_STRING_EQUAL (g_hash_table_lookup ((GHashTable *) pi, "name"), "Dummy");
 }
 
+extern GHashTable *readPluginInfo (gchar * filename);
+
 void
 plugin_readInfo_test ()
 {
 	// pass NULL filename
-	til_readPluginInfo (NULL);
+	readPluginInfo (NULL);
 	
 	// read info of dummy plugin
-	GHashTable *pi = til_readPluginInfo ("plugins/dummy/dummy");
+	GHashTable *pi = readPluginInfo ("plugins/dummy/dummy");
 	isDummyPlugin (pi);
 	til_destroyPluginInfo (pi);
+}
+
+
+extern GSList *getPluginsInDir (gchar * path);
+
+void
+freeList (GSList *list)
+{
+	for (; list != NULL; list = g_slist_delete_link (list,list))
+		g_free (list->data);
 }
 
 void
 plugin_locate_test ()
 {
-	gchar **list;
+	GSList *list;
+
+	// test internal getPluginsInDir function
 
 	// pass NULL path
-	list = til_getPluginsInDir (NULL);
-	CU_ASSERT_PTR_NOT_NULL_FATAL (list);
-	CU_ASSERT_PTR_NULL (list[0]);
-	g_strfreev (list);
+	list = getPluginsInDir (NULL);
+	CU_ASSERT_PTR_NULL (list);
 
-	// get the available system plugins, currently, there are none
-	list = til_getAvailableSysPlugins ();
-	CU_ASSERT_PTR_NOT_NULL_FATAL (list);
-	CU_ASSERT_PTR_NULL (list[0]);
-	g_strfreev (list);
-
-	// get the available plugins in the build dir
-	list = til_getPluginsInDir ("plugins/dummy");
-	CU_ASSERT_PTR_NOT_NULL_FATAL (list);
-	CU_ASSERT (list[0] != NULL && list[1] == NULL);
-	if (list[0] != NULL)
+	// get the available plugins in the dummy dir
+	list = getPluginsInDir ("plugins/dummy");
+	CU_ASSERT (g_slist_length (list) == 1);
+	CU_ASSERT (list->data != NULL);
+	if (list->data != NULL)
 	{
-		CU_ASSERT_STRING_EQUAL (list[0], "dummy");
+		CU_ASSERT_STRING_EQUAL (list->data, "plugins/dummy/dummy");
 	}
-	g_strfreev (list);
+	freeList (list);
+
+	// check til_getAvailablePlugins and til_getPluginInfo
+	til_addPluginDirectory ("plugins/dummy");
+	GHashTable *info = til_getPluginInfo ("til.dummy");
+	CU_ASSERT (info != NULL);
+	til_destroyPluginInfo (info);
+	til_removePluginDirectory ("plugins/dummy");
+
+
+#if 0
+ * NOTE: The function til_getAvailablePlugins is not entirely tested using unit tests, because
+ * it interacts too much with the system
+ *
+	// test high level til_getAvailablePlugins function, note: only the first 3 locations
+	// (environment vars, user's config file, app-defined directory) are checked
+
+	// 1.: assure that there are no til configuration files or plugins in the system
+	gchar *filepath = g_build_filename (g_get_user_config_dir (), ".til.conf", NULL);
+	if (g_file_test (filepath, G_FILE_TEST_EXISTS))
+		CU_FAIL_FATAL ("The personal configuration file \".til.conf\" exists.");
+	g_free (filepath);
+
+#ifdef G_OS_UNIX
+	filepath = g_build_filename (SYSCONFDIR, "til.conf", NULL);
+	if (g_file_test (filepath, G_FILE_TEST_EXISTS))
+		CU_FAIL_FATAL ("The systemwide configuration file \"til.conf\" exists.");
+	g_free (filepath);
+#endif
+
+	if (g_file_test (PLUGINDIR, G_FILE_TEST_DIR))
+		CU_FAIL_FATAL ("The system's default plugin directory exists.");
+#endif
 }
 
 void
 plugin_load_test ()
 {
-	const gchar *id = NULL;
-
 	// pass bogus parameters
-	til_loadPlugin (NULL, NULL);
-	til_loadPlugin ("plugins/dummy/dummy", NULL);
-	til_loadPlugin (NULL, &id);
-	til_loadPlugin ("aolrechoaeu", NULL);
-	til_loadPlugin ("aolrechoaeu", &id);
+	til_loadPlugin (NULL);
+	til_loadPlugin ("aolrechoaeu");
 	til_unloadPlugin (NULL);
 
 	// load dummy plugin
-	CU_ASSERT_FATAL (til_loadPlugin ("plugins/dummy/dummy", &id));
-	CU_ASSERT_PTR_NOT_NULL_FATAL (id);
-	CU_ASSERT_STRING_EQUAL (id, "til.dummy");
+	til_addPluginDirectory ("plugins/dummy");
+	CU_ASSERT_FATAL (til_loadPlugin ("til.dummy"));
 
 	// test if it is in the list of loaded plugins
 	const gchar **pluginList = til_getLoadedPlugins ();
@@ -165,7 +197,7 @@ plugin_load_test ()
 	g_free (pluginList);
 
 	// unload plugin
-	CU_ASSERT (til_unloadPlugin (id));
+	CU_ASSERT (til_unloadPlugin ("til.dummy"));
 
 	// check that plugin list is empty
 	pluginList = til_getLoadedPlugins ();
@@ -174,7 +206,7 @@ plugin_load_test ()
 	g_free (pluginList);
 
 	// load it again
-	CU_ASSERT_FATAL (til_loadPlugin ("plugins/dummy/dummy", &id));
+	CU_ASSERT_FATAL (til_loadPlugin ("til.dummy"));
 
 	// unload all plugins
 	CU_ASSERT (til_unloadAllPlugins ());
@@ -197,9 +229,8 @@ register_view_test ()
 	til_unregisterView (NUM_VIEWS);
 	
 	// load the dummy plugin and set it as default
-	const gchar *id = NULL;
-	CU_ASSERT_FATAL (til_loadPlugin ("plugins/dummy/dummy", &id));
-	CU_ASSERT (til_setDefaultPlugin (id));
+	CU_ASSERT_FATAL (til_loadPlugin ("til.dummy"));
+	CU_ASSERT (til_setDefaultPlugin ("til.dummy"));
 	
 	// register and unregister a view
 	TIL_View view = -1;
