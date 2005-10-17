@@ -20,8 +20,8 @@ documentation:
 - document the basic commands
 
 build system:
-- build the TIL as a dynamic library
-- make the TIL installable
+- build the TIL as a dynamic library -- DONE on Linux
+- make the TIL installable -- DONE
 
 porting:
 - port to Mac OS X -- DONE

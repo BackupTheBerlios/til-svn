@@ -26,13 +26,13 @@ rule PluginFromObjects
 	local _s _t ;
 
 	# Add grist to file names
-	# Add suffix to plugin
+	# Add suffix and "lib" prefix to plugin
 
 	_s = [ FGristFiles $(>) ] ;
 	_t = [ FAppendSuffix $(<) : $(SUFPLUGIN) ] ;
-	_t = $(PREFPLUGIN)$(_t) ;
+	_t = lib$(_t) ;
 
-	# so 'jam foo' works when it's really foo.so
+	# so 'jam foo' works when it's really libfoo.so
 
 	if $(_t) != $(<)
 	{
@@ -48,11 +48,75 @@ rule PluginFromObjects
 
 	Clean clean : $(_t) ;
 
-	LinkSharedLib $(_t) : $(_s) ;
+	LinkPlugin $(_t) : $(_s) ;
 }
 
-rule LinkSharedLib
+rule LinkPlugin
 {
 	Link $(<) : $(>) ;
 	LINKFLAGS on $(<) += $(PLUGINLINKFLAGS) ;
 }
+
+
+
+rule Dylib
+{
+	# Dylib <name> : <sources> ;
+
+	DylibFromObjects $(<) : $(>:S=$(SUFOBJ)) ;
+	Objects $(>) ;
+	CCFLAGS on $(>:S=$(SUFOBJ)) += -fPIC ;
+}
+
+rule DylibFromObjects
+{
+	local _s _t ;
+
+	# Add grist to file names
+	# Add suffix and "lib" prefix to dylib
+
+	_s = [ FGristFiles $(>) ] ;
+	_t = [ FAppendSuffix $(<) : $(SUFDYLIB) ] ;
+	_t = lib$(_t) ;
+
+	# so 'jam foo' works when it's really libfoo.so
+
+	if $(_t) != $(<)
+	{
+		Depends $(<) : $(_t) ;
+		NotFile $(<) ;
+	}
+
+	# make compiled sources a dependency of target
+
+	Depends plugin : $(_t) ;
+	Depends $(_t) : $(_s) ;
+	MakeLocate $(_t) : $(LOCATE_TARGET) ;
+
+	Clean clean : $(_t) ;
+
+	LinkDylib $(_t) : $(_s) ;
+}
+
+rule LinkDylib
+{
+	Link $(<) : $(>) ;
+	LINKFLAGS on $(<) += $(DYLIBLINKFLAGS) -fPIC ;
+}
+
+
+rule LinkDylibs
+{
+	# make library dependencies of target
+	# set LINKLIBS variable used by 'actions Main'
+
+	local _s = [ FGristFiles $(>) ] ;
+	local _t = [ FAppendSuffix $(<) : $(SUFEXE) ] ;
+
+	Depends $(_t) : lib$(>:S=$(SUFDYLIB)) ;
+
+	# when the libraries are foo and bar, then LINKLIBS is:
+	# $(FOOLINKFLAGS) $(BARLINKFLAGS) -lfoo -lbar
+	LINKLIBS on $(_t) += $($(>:U)LINKFLAGS) -l$(>) ;
+}
+

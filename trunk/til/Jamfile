@@ -2,6 +2,7 @@ SubDir TOP til ;
 
 SubDirHdrs $(TILHDRS) ;
 SubDirCcFlags $(GLIBCFLAGS) ;
-Library libtil : til.c plugin.c error.c appiface.c ;
+Dylib til : til.c plugin.c error.c appiface.c ;
+InstallFile $(LIBDIR) : libtil$(SUFDYLIB) ;
 ObjectDefines plugin.o : PLUGINDIR=\'\"$(PLUGINDIR)\"\' SYSCONFDIR=\'\"$(SYSCONFDIR)\"\' ;
-LINKLIBS on libtil$(SUFLIB) = $(GLIBLINKLIBS) ;
+LINKLIBS on libtil$(SUFDYLIB) = $(GLIBLINKLIBS) ;

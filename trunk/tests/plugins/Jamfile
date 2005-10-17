@@ -4,6 +4,6 @@ SubDirHdrs $(TILHDRS) ;
 SubDirCcFlags $(GLIBCFLAGS) ;
 
 Main plugintest : main.c parse.c ;
-LinkLibraries plugintest : libtil ;
-LINKLIBS on plugintest$(SUFEXE) = $(GLIBLINKLIBS) $(CUNITLINKLIBS) ;
+LinkDylibs plugintest : til ;
+LINKLIBS on plugintest$(SUFEXE) += $(GLIBLINKLIBS) $(CUNITLINKLIBS) ;
 

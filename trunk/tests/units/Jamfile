@@ -12,12 +12,12 @@ if $(TOP) != $(DOT) {
 }
 
 MainFromObjects console : console.o $(TESTOBJECTS) ;
-LinkLibraries console : libtil ;
-LINKLIBS on console$(SUFEXE) = $(GLIBLINKLIBS) $(CUNITLINKLIBS) ;
+LinkDylibs console : til ;
+LINKLIBS on console$(SUFEXE) += $(GLIBLINKLIBS) $(CUNITLINKLIBS) ;
 
 if $(UNITTESTS_CURSES) = yes {
 	Objects curses.c ;
 	MainFromObjects curses : curses.o $(TESTOBJECTS) ;
-	LinkLibraries curses : libtil ;
-	LINKLIBS on curses$(SUFEXE) = $(GLIBLINKLIBS) $(CUNITLINKLIBS) $(CURSESLINKLIBS) ;
+	LinkDylibs curses : til ;
+	LINKLIBS on curses$(SUFEXE) += $(GLIBLINKLIBS) $(CUNITLINKLIBS) $(CURSESLINKLIBS) ;
 }

@@ -4,3 +4,5 @@ SubDirHdrs $(TILHDRS) ;
 SubDirCcFlags $(GLIBCFLAGS) ;
 Plugin modern : iface.c ;
 LINKLIBS on $(PREFPLUGIN)modern$(SUFPLUGIN) += $(GLIBLINKLIBS) ;
+InstallFile $(PLUGINDIR) : $(PREFPLUGIN)modern$(SUFPLUGIN) ;
+InstallFile $(PLUGINDIR) : modern.tilplugin ;
